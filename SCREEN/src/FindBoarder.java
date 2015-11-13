@@ -26,56 +26,25 @@ public class FindBoarder {
         int right=biMatrix.length/2+init;
         int up=biMatrix[0].length/2-init;
         int down=biMatrix[0].length/2+init;
-        boolean leftNotWhite=true;
-        boolean rightNotWhite=true;
-        boolean upNotWhite=true;
-        boolean downNotWhite=true;
-        boolean flag=false;
+        boolean flag;
         while(true){
-            rightNotWhite=true;
             flag=false;
-            while(rightNotWhite||!flag){
-                rightNotWhite=containsBlack(biMatrix,up,down,right,false);
-                if(rightNotWhite){
-                    right++;
-                    flag=true;
-                }
-                else{
-                    break;
-                }
+            while(containsBlack(biMatrix,up,down,right,false)){
+                right++;
+                flag=true;
+
             }
-            downNotWhite=true;
-            while(downNotWhite||!flag){
-                downNotWhite=containsBlack(biMatrix,left,right,down,true);
-                if(downNotWhite){
-                    down++;
-                    flag=true;
-                }
-                else{
-                    break;
-                }
+            while(containsBlack(biMatrix,left,right,down,true)){
+                down++;
+                flag=true;
             }
-            leftNotWhite=true;
-            while(leftNotWhite||!flag){
-                leftNotWhite=containsBlack(biMatrix,up,down,left,false);
-                if(leftNotWhite){
-                    left--;
-                    flag=true;
-                }
-                else{
-                    break;
-                }
+            while(containsBlack(biMatrix,up,down,left,false)){
+                left--;
+                flag=true;
             }
-            upNotWhite=true;
-            while(upNotWhite||!flag){
-                upNotWhite=containsBlack(biMatrix,left,right,up,true);
-                if(upNotWhite){
-                    up--;
-                    flag=true;
-                }
-                else{
-                    break;
-                }
+            while(containsBlack(biMatrix,left,right,up,true)){
+                up--;
+                flag=true;
             }
             if(!flag){
                 break;
