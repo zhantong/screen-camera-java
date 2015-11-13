@@ -1,5 +1,4 @@
 import javax.imageio.ImageIO;
-import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,13 +9,35 @@ import java.io.OutputStream;
  */
 public class ImgToFile extends FileToImg{
     public static void main(String[] args){
-        String inPath="/Users/zhantong/Desktop/t.png";
-        File infile=new File(inPath);
+//        String inPath="/Users/zhantong/Desktop/t.png";
+//        String outPath="/Users/zhantong/Desktop/t.txt";
+//        File infile=new File(inPath);
+//        ImgToFile imgToFile=new ImgToFile();
+//        int[] binaryStream=imgToFile.imgToBinaryStream(infile);
+//        File outFile=new File(outPath);
+//        imgToFile.binaryStreamToFile(binaryStream,outFile);
+        File outFile=new File("/Users/zhantong/Desktop/t.txt");
         ImgToFile imgToFile=new ImgToFile();
-        int[] binaryStream=imgToFile.imgToBinaryStream(infile);
-        String outPath="/Users/zhantong/Desktop/t.txt";
-        File outFile=new File(outPath);
-        imgToFile.binaryStreamToFile(binaryStream,outFile);
+        imgToFile.imgsToFile("/Users/zhantong/Desktop/test1",outFile);
+    }
+    public void imgsToFile(String imgsPath,File file){
+        File root=new File(imgsPath);
+        File[] imgs=root.listFiles();
+        int[] buffer=new int[imgs.length*2500];
+        int[] last={};
+        int count=0;
+        for(File img:imgs){
+            int[] t=imgToBinaryStream(img);
+            if(t==last){
+                continue;
+            }
+            last=t;
+            System.out.println(buffer.length+" "+t.length);
+            System.arraycopy(t,0,buffer,count*2500,t.length);
+            count++;
+            System.out.println("DONE!");
+        }
+        binaryStreamToFile(buffer,file);
     }
     public int[] imgToBinaryStream(File file){
         BufferedImage img=null;
@@ -30,8 +51,7 @@ public class ImgToFile extends FileToImg{
         int imgWidth=(frameBlackLength+frameVaryLength)*2+contentLength;
         GridSampler gs=new GridSampler();
         int[][] matrixStream=gs.sampleGrid(biMatrix,imgWidth,imgWidth,0,0,imgWidth,0,imgWidth,imgWidth,0,imgWidth,border[0],border[1],border[2],border[3],border[4],border[5],border[6],border[7]);
-        int[] binaryStream=matrixToBinaryStream(matrixStream);
-        return binaryStream;
+        return matrixToBinaryStream(matrixStream);
     }
     public int[] matrixToBinaryStream(int[][] biMatrix){
         int startOffset=frameBlackLength+frameVaryLength;
@@ -84,7 +104,7 @@ public class ImgToFile extends FileToImg{
                 }
             }
         }
-        OutputStream os=null;
+        OutputStream os;
         try{
             os=new FileOutputStream(file);
             os.write(target);
