@@ -23,23 +23,24 @@ public class ImgToFile extends FileToImg{
     public void imgsToFile(String imgsPath,File file){
         File root=new File(imgsPath);
         File[] imgs=root.listFiles();
-        int[] buffer=new int[imgs.length*2500];
+        int[] buffer={};
         int[] last={};
-        int count=0;
         for(File img:imgs){
-            int[] t={};
+            int[] t;
             try {
                 t = imgToBinaryStream(img);
             }catch (NotFoundException e){
                 System.out.println("Code image not found!");
+                continue;
             }
             if(t==last){
                 continue;
             }
             last=t;
-            System.out.println(buffer.length+" "+t.length);
-            System.arraycopy(t,0,buffer,count*2500,t.length);
-            count++;
+            int[] temp=new int[buffer.length+t.length];
+            System.arraycopy(buffer,0,temp,0,buffer.length);
+            System.arraycopy(t,0,temp,buffer.length,t.length);
+            buffer=temp;
             System.out.println("DONE!");
         }
         binaryStreamToFile(buffer,file);
