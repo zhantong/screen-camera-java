@@ -9,13 +9,6 @@ import java.io.OutputStream;
  */
 public class ImgToFile extends FileToImg{
     public static void main(String[] args){
-//        String inPath="/Users/zhantong/Desktop/t.png";
-//        String outPath="/Users/zhantong/Desktop/t.txt";
-//        File infile=new File(inPath);
-//        ImgToFile imgToFile=new ImgToFile();
-//        int[] binaryStream=imgToFile.imgToBinaryStream(infile);
-//        File outFile=new File(outPath);
-//        imgToFile.binaryStreamToFile(binaryStream,outFile);
         File outFile=new File("/Users/zhantong/Desktop/t.txt");
         ImgToFile imgToFile=new ImgToFile();
         imgToFile.imgsToFile("/Users/zhantong/Desktop/test1",outFile);

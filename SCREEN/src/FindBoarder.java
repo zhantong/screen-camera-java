@@ -134,9 +134,6 @@ public class FindBoarder {
     public static boolean isSinglePoint(int[][] biMatrix,int x,int y){
         int sum=biMatrix[x-1][y-1]+biMatrix[x][y-1]+biMatrix[x+1][y-1]+biMatrix[x-1][y]+biMatrix[x+1][y]+biMatrix[x-1][y+1]+biMatrix[x][y+1]+biMatrix[x+1][y+1];
         //System.out.println("isSinglePoint:"+sum);
-        if(sum>=6){
-            return true;
-        }
-        return  false;
+        return sum>=6;
     }
 }
