@@ -20,29 +20,35 @@ public class FindBoarder {
         }
         return false;
     }
-    public static int[] findBoarder(int[][] biMatrix){
-        int init=30;
-        int left=biMatrix.length/2-init;
-        int right=biMatrix.length/2+init;
-        int up=biMatrix[0].length/2-init;
-        int down=biMatrix[0].length/2+init;
+    public static int[] findBoarder(int[][] biMatrix) throws NotFoundException{
+        int width=biMatrix.length;
+        int height=biMatrix[0].length;
+        int init=20;
+        int left=width/2-init;
+        int right=width/2+init;
+        int up=height/2-init;
+        int down=height/2+init;
+        System.out.println("init:"+up+" "+right+" "+down+" "+left);
+        if(left<0||right>=width||up<0||down>=height){
+            throw NotFoundException.getNotFoundInstance();
+        }
         boolean flag;
         while(true){
             flag=false;
-            while(containsBlack(biMatrix,up,down,right,false)){
+            while(containsBlack(biMatrix,up,down,right,false)&&right<width){
                 right++;
                 flag=true;
 
             }
-            while(containsBlack(biMatrix,left,right,down,true)){
+            while(containsBlack(biMatrix,left,right,down,true)&&down<height){
                 down++;
                 flag=true;
             }
-            while(containsBlack(biMatrix,up,down,left,false)){
+            while(containsBlack(biMatrix,up,down,left,false)&&left>0){
                 left--;
                 flag=true;
             }
-            while(containsBlack(biMatrix,left,right,up,true)){
+            while(containsBlack(biMatrix,left,right,up,true)&&up>0){
                 up--;
                 flag=true;
             }
@@ -50,76 +56,84 @@ public class FindBoarder {
                 break;
             }
         }
-        int x0=0,y0=0,x1=0,y1=0,x2=0,y2=0,x3=0,y3=0;
-        left++;
-        int upTemp=up;
-        int downTemp=down;
-        while(upTemp!=downTemp){
-            upTemp++;
-            if(biMatrix[left][upTemp]==0){
-                x0=left;
-                y0=upTemp;
-                break;
-            }
-            downTemp--;
-            if(biMatrix[left][downTemp]==0){
-                x3=left;
-                y3=downTemp;
-                break;
+        System.out.println("boarder:"+up+" "+right+" "+down+" "+left);
+        if(left==0||up==0||right==width||down==height){
+            throw NotFoundException.getNotFoundInstance();
+        }
+
+        int[] vertexs=new int[8];
+        left=findVertex(biMatrix,up,down,left,vertexs,0,3,false,false);
+        up=findVertex(biMatrix,left,right,up,vertexs,0,1,true,false);
+        right=findVertex(biMatrix,up,down,right,vertexs,1,2,false,true);
+        down=findVertex(biMatrix,left,right,down,vertexs,3,2,true,true);
+        System.out.print("current:");
+        for(int i:vertexs){
+            System.out.print(i+" ");
+        }
+        System.out.println();
+        return vertexs;
+    }
+    public static int findVertex(int[][] biMatrix,int b1,int b2,int fixed,int[] vertexs,int p1,int p2,boolean horizontal,boolean sub){
+        int mid=(b2-b1)/2;
+        if(horizontal){
+            while(true){
+                for (int i = 1; i <= mid; i++) {
+                    if (biMatrix[b1 + i][fixed] == 0) {
+                        if (!isSinglePoint(biMatrix, b1 + i, fixed)) {
+                            vertexs[p1 * 2] = b1 + i;
+                            vertexs[p1 * 2 + 1] = fixed;
+                            return fixed;
+                        }
+                    }
+                    if (biMatrix[b2 - i][fixed] == 0) {
+                        if (!isSinglePoint(biMatrix, b2 - i, fixed)) {
+                            vertexs[p2 * 2] = b2 - i;
+                            vertexs[p2 * 2 + 1] = fixed;
+                            return fixed;
+                        }
+                    }
+                }
+                if(sub){
+                    fixed--;
+                }
+                else{
+                    fixed++;
+                }
             }
         }
-        right--;
-        upTemp=up;
-        downTemp=down;
-        while(upTemp!=downTemp){
-            upTemp++;
-            if(biMatrix[right][upTemp]==0){
-                x1=right;
-                y1=upTemp;
-                break;
-            }
-            downTemp--;
-            if(biMatrix[right][downTemp]==0){
-                x2=right;
-                y2=downTemp;
-                break;
-            }
-        }
-        up++;
-        int leftTemp=left;
-        int rightTemp=right;
-        while(leftTemp!=rightTemp){
-            leftTemp++;
-            if(biMatrix[leftTemp][up]==0){
-                x0=leftTemp;
-                y0=up;
-                break;
-            }
-            rightTemp--;
-            if(biMatrix[rightTemp][up]==0){
-                x1=rightTemp;
-                y1=up;
-                break;
+        else{
+            while(true) {
+                for (int i = 1; i <= mid; i++) {
+                    if (biMatrix[fixed][b1 + i] == 0) {
+                        if (!isSinglePoint(biMatrix, fixed, b1 + i)) {
+                            vertexs[p1 * 2] = fixed;
+                            vertexs[p1 * 2 + 1] = b1 + i;
+                            return fixed;
+                        }
+                    }
+                    if (biMatrix[fixed][b2 - i] == 0) {
+                        if (!isSinglePoint(biMatrix, fixed, b2 - i)) {
+                            vertexs[p2 * 2] = fixed;
+                            vertexs[p2 * 2 + 1] = b2 - i;
+                            return fixed;
+                        }
+                    }
+                }
+                if(sub){
+                    fixed--;
+                }
+                else{
+                    fixed++;
+                }
             }
         }
-        down--;
-        leftTemp=left;
-        rightTemp=right;
-        while(leftTemp!=rightTemp){
-            leftTemp++;
-            if(biMatrix[leftTemp][down]==0){
-                x3=leftTemp;
-                y3=down;
-                break;
-            }
-            rightTemp--;
-            if(biMatrix[rightTemp][down]==0){
-                x2=rightTemp;
-                y2=down;
-                break;
-            }
+    }
+    public static boolean isSinglePoint(int[][] biMatrix,int x,int y){
+        int sum=biMatrix[x-1][y-1]+biMatrix[x][y-1]+biMatrix[x+1][y-1]+biMatrix[x-1][y]+biMatrix[x+1][y]+biMatrix[x-1][y+1]+biMatrix[x][y+1]+biMatrix[x+1][y+1];
+        //System.out.println("isSinglePoint:"+sum);
+        if(sum>=6){
+            return true;
         }
-        //System.out.println(x0+" "+y0+" "+x1+" "+y1+" "+x2+" "+y2+" "+x3+" "+y3);
-        return new int[] {x0,y0,x1,y1,x2,y2,x3,y3};
+        return  false;
     }
 }
