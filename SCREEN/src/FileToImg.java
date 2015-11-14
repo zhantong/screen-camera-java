@@ -12,7 +12,6 @@ public class FileToImg {
     int frameVaryLength=1;
     int contentLength=50;
     int blockLength=4;
-    String destPath="/Users/zhantong/Desktop/test.png";
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         f.toImage(f.readFile("/Users/zhantong/Desktop/test.txt"),"/Users/zhantong/Desktop/test/");
@@ -27,7 +26,6 @@ public class FileToImg {
         }
         StringBuffer stringBuffer=new StringBuffer();
         try{
-            DataInputStream dataInputStream=new DataInputStream(fileInputStream);
             int i;
             while((i=fileInputStream.read())!=-1) {
                 String b = Integer.toBinaryString(i);

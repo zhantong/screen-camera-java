@@ -7,7 +7,7 @@ import java.io.File;
  * Created by zhantong on 15/11/11.
  */
 public class Binarizer {
-    public static int getThreshold(BufferedImage img){
+    public static int getThreshold(BufferedImage img) throws NotFoundException{
         int height=img.getHeight();
         int width=img.getWidth();
         int[] buckets=new int[256];
@@ -19,12 +19,11 @@ public class Binarizer {
                 int r=(argb>>16)&0xFF;
                 int g=(argb>>8)&0xFF;
                 int b=(argb>>0)&0xFF;
-                int gray=(int)((b*29+g*150+r*77+128)>>8);
+                int gray=((b*29+g*150+r*77+128)>>8);
                 buckets[gray]++;
             }
         }
         int numBuckets=buckets.length;
-        int maxBucketCount=0;
         int firstPeak=0;
         int firstPeakSize=0;
         for(int x=0;x<numBuckets;x++){
@@ -48,11 +47,15 @@ public class Binarizer {
             firstPeak=secondPeak;
             secondPeak=temp;
         }
+        if(secondPeak-firstPeak<=numBuckets/16){
+            throw NotFoundException.getNotFoundInstance();
+        }
         int bestValley=0;
         int bestValleyScore=-1;
         for(int x=firstPeak+1;x<secondPeak;x++){
             int fromSecond=secondPeak-x;
             int score=(x-firstPeak)*fromSecond*fromSecond*(firstPeakSize-buckets[x]);
+            //int score=fromSecond*fromSecond*(firstPeakSize-buckets[x]);
             if(score>bestValleyScore){
                 bestValley=x;
                 bestValleyScore=score;
@@ -60,7 +63,7 @@ public class Binarizer {
         }
         return bestValley;
     }
-    public static int[][] binarizer(BufferedImage img){
+    public static int[][] binarizer(BufferedImage img) throws NotFoundException{
         int threshold=getThreshold(img);
         int height=img.getHeight();
         int width=img.getWidth();
@@ -71,7 +74,7 @@ public class Binarizer {
                 int r=(argb>>16)&0xFF;
                 int g=(argb>>8)&0xFF;
                 int b=(argb>>0)&0xFF;
-                int gray=(int)((b*29+g*150+r*77+128)>>8);
+                int gray=((b*29+g*150+r*77+128)>>8);
                 if(gray<=threshold){
                     biMatrix[x][y]=0;
                     img.setRGB(x,y,0xff000000);
@@ -82,11 +85,13 @@ public class Binarizer {
                 }
             }
         }
+        /*
         try {
-            ImageIO.write(img, "jpg", new File("/Users/zhantong/Desktop/bi.jpg"));
+            ImageIO.write(img, "jpg", new File("/Users/zhantong/Desktop/+"+Math.random()*10+".jpg"));
         }catch (Exception e){
             e.printStackTrace();
         }
+        */
         return biMatrix;
     }
 }

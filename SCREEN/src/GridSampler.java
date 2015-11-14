@@ -23,7 +23,6 @@ public class GridSampler {
         return sampleGrid(img, dimensionX, dimensionY, transform);
     }
     public int[][] sampleGrid(int[][] img,int dimensionX,int dimensionY,PerspectiveTransform transform){
-        System.out.println(transform.transformPoint(45f,45f)[0]+" "+transform.transformPoint(45f,45f)[1]);
         int[][] result=new int[dimensionX][dimensionY];
         float[] points=new float[2*dimensionX];
         int max=points.length;
