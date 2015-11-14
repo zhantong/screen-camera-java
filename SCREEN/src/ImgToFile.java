@@ -27,7 +27,12 @@ public class ImgToFile extends FileToImg{
         int[] last={};
         int count=0;
         for(File img:imgs){
-            int[] t=imgToBinaryStream(img);
+            int[] t={};
+            try {
+                t = imgToBinaryStream(img);
+            }catch (NotFoundException e){
+                System.out.println("Code image not found!");
+            }
             if(t==last){
                 continue;
             }
@@ -39,7 +44,7 @@ public class ImgToFile extends FileToImg{
         }
         binaryStreamToFile(buffer,file);
     }
-    public int[] imgToBinaryStream(File file){
+    public int[] imgToBinaryStream(File file) throws NotFoundException{
         BufferedImage img=null;
         try {
             img = ImageIO.read(file);

@@ -71,6 +71,9 @@ public class FindBoarder {
             System.out.print(i+" ");
         }
         System.out.println();
+        if(vertexs[0]==0||vertexs[2]==0||vertexs[4]==0||vertexs[6]==0){
+            throw NotFoundException.getNotFoundInstance();
+        }
         return vertexs;
     }
     public static int findVertex(int[][] biMatrix,int b1,int b2,int fixed,int[] vertexs,int p1,int p2,boolean horizontal,boolean sub){
