@@ -10,11 +10,11 @@ public class FileToImg {
     int frameWhiteLength=10;
     int frameBlackLength=1;
     int frameVaryLength=1;
-    int contentLength=50;
+    int contentLength=52;
     int blockLength=4;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
-        f.toImage(f.readFile("/Users/zhantong/Desktop/test.txt"),"/Users/zhantong/Desktop/test/");
+        f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test2/");
     }
     public String readFile(String path){
         File inFile=new File(path);
@@ -27,11 +27,41 @@ public class FileToImg {
         StringBuffer stringBuffer=new StringBuffer();
         try{
             int i;
+            int length=300;
+            int ecNum=38;
+            byte[] b=new byte[length];
+            int[] c=new int[length+ecNum];
+            ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.QR_CODE_FIELD_256);
+            Boolean flag=false;
+            while(true){
+                if((i=fileInputStream.read(b))!=length){
+                    b[i++]=1;
+                    for(int index=i;index<length;index++){
+                        b[index]=0;
+                    }
+                    flag=true;
+                }
+                for(int j=0;j<length;j++){
+                    c[j]=b[j]&0xff;
+                }
+                //encoder.encode(c,ecNum);
+                for(int k:c){
+                    String s = Integer.toBinaryString(k);
+                    int temp=Integer.parseInt(s);
+                    stringBuffer.append(String.format("%1$08d",temp));
+                }
+                if(flag){
+                    break;
+                }
+            }
+            /*
             while((i=fileInputStream.read())!=-1) {
                 String b = Integer.toBinaryString(i);
                 int temp=Integer.parseInt(b);
                 stringBuffer.append(String.format("%1$08d",temp));
+                //System.out.println(i);
             }
+            */
             return stringBuffer.toString();
         }catch (IOException e){
             e.printStackTrace();
@@ -79,6 +109,7 @@ public class FileToImg {
             }
         }
     }
+
     public void addFrame(Graphics2D g){
         int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
         int stopOffset=startOffset+(contentLength+frameVaryLength)*blockLength;
