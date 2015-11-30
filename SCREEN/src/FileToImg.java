@@ -12,9 +12,10 @@ public class FileToImg {
     int frameVaryLength=1;
     int contentLength=76;
     int blockLength=10;
+    int grayCodeLength=10;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
-        f.toImage(f.readFile("/Users/zhantong/Downloads/docs-pdf/howto-pyporting.pdf"),"/Users/zhantong/Desktop/test7/");
+        f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test7/");
     }
     public String readFile(String path){
         File inFile=new File(path);
@@ -82,6 +83,7 @@ public class FileToImg {
         int biDataLength=biData.length();
         int imgAmount=(int)Math.ceil((double)biDataLength/(contentLength*contentLength));
         int index = 0;
+        GrayCode grayCode=new GrayCode(grayCodeLength);
         for(int i=1;i<=imgAmount;i++) {
             BufferedImage img = new BufferedImage(length, length, BufferedImage.TYPE_BYTE_BINARY);
             Graphics2D g = img.createGraphics();
@@ -104,6 +106,7 @@ public class FileToImg {
                 }
             }
             addFrame(g);
+            addGrayCode(g,grayCode.toGray(i));
             g.dispose();
             img.flush();
             String destPath=String.format("%s%06d.%s",path,i,imgType);
@@ -121,7 +124,7 @@ public class FileToImg {
         int stopOffset=startOffset+(contentLength+frameVaryLength)*blockLength;
         int vBlockLength=frameVaryLength*blockLength;
         for(int i=startOffset;i<stopOffset;i+=vBlockLength*2){
-            g.fillRect(i,startOffset,vBlockLength,vBlockLength);
+            //g.fillRect(i,startOffset,vBlockLength,vBlockLength);
             g.fillRect(startOffset,i,vBlockLength,vBlockLength);
             g.fillRect(stopOffset,i,vBlockLength,vBlockLength);
             g.fillRect(i,stopOffset,vBlockLength,vBlockLength);
@@ -133,5 +136,21 @@ public class FileToImg {
         g.fillRect(startOffset,startOffset,stopOffset-startOffset,bBlockLength);
         g.fillRect(startOffset,stopOffset-bBlockLength,stopOffset-startOffset,bBlockLength);
         g.fillRect(stopOffset-bBlockLength,startOffset,bBlockLength,stopOffset-startOffset);
+    }
+    public void addGrayCode(Graphics2D g,String grayCode){
+        System.out.println(grayCode);
+        int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
+        int stopOffset=startOffset+(contentLength+frameVaryLength)*blockLength;
+        int vBlockLength=frameVaryLength*blockLength;
+        int i;
+        for(i=0;i<grayCode.length();i++){
+            if(grayCode.charAt(i)=='0'){
+                g.fillRect(startOffset+i*vBlockLength,startOffset,vBlockLength,vBlockLength);
+            }
+        }
+        i=startOffset+i*vBlockLength;
+        for(;i<stopOffset;i+=vBlockLength){
+            g.fillRect(i,startOffset,vBlockLength,vBlockLength);
+        }
     }
 }
