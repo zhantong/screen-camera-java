@@ -1,34 +1,40 @@
+import javafx.scene.SubScene;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * Created by zhantong on 15/11/11.
  */
 public class ImgToFile extends FileToImg{
     public static void main(String[] args){
-        File outFile=new File("/Users/zhantong/Desktop/t.txt");
+        File outFile=new File("/Users/zhantong/Desktop/hello.txt");
         ImgToFile imgToFile=new ImgToFile();
-        imgToFile.imgsToFile("/Users/zhantong/Desktop/test1",outFile);
+        imgToFile.imgsToFile("/Users/zhantong/Desktop/test5",outFile);
     }
     public void imgsToFile(String imgsPath,File file){
         File root=new File(imgsPath);
         File[] imgs=root.listFiles();
         int[] buffer={};
-        int[] last={};
+        int[] last=new int[2500];
         for(File img:imgs){
             int[] t;
             try {
+                System.out.println(img.getAbsolutePath());
                 t = imgToBinaryStream(img);
             }catch (NotFoundException e){
                 System.out.println("Code image not found!");
                 continue;
             }
-            if(t==last){
+            if(Arrays.equals(t,last)){
+                System.out.println("Same image found!");
                 continue;
             }
+            //System.arraycopy(t,0,last,0,2500);
             last=t;
             int[] temp=new int[buffer.length+t.length];
             System.arraycopy(buffer,0,temp,0,buffer.length);

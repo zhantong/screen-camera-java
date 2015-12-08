@@ -13,6 +13,7 @@ public class FileToImg {
     int contentLength=76;
     int blockLength=10;
     int grayCodeLength=10;
+    int ecByteNum=38;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test7/");
@@ -30,8 +31,8 @@ public class FileToImg {
         int byte_length=0;
         try{
             int i;
-            int length=684;
-            int ecNum=38;
+            int length=contentLength*contentLength/8-ecByteNum;
+            int ecNum=ecByteNum;
             byte[] b=new byte[length];
             int[] c=new int[length+ecNum];
             ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.QR_CODE_FIELD_256);
