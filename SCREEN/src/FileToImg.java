@@ -16,7 +16,7 @@ public class FileToImg {
     int ecByteNum=38;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
-        f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test7/");
+        f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test8/");
     }
     public String readFile(String path){
         File inFile=new File(path);
@@ -84,7 +84,8 @@ public class FileToImg {
         int biDataLength=biData.length();
         int imgAmount=(int)Math.ceil((double)biDataLength/(contentLength*contentLength));
         int index = 0;
-        GrayCode grayCode=new GrayCode(grayCodeLength);
+        //GrayCode grayCode=new GrayCode(grayCodeLength);
+        String imgAmountString=CRC8.toString(imgAmount);
         for(int i=1;i<=imgAmount;i++) {
             BufferedImage img = new BufferedImage(length, length, BufferedImage.TYPE_BYTE_BINARY);
             Graphics2D g = img.createGraphics();
@@ -107,7 +108,7 @@ public class FileToImg {
                 }
             }
             addFrame(g);
-            addGrayCode(g,grayCode.toGray(i));
+            addGrayCode(g,CRC8.toString(i)+imgAmountString);
             g.dispose();
             img.flush();
             String destPath=String.format("%s%06d.%s",path,i,imgType);
