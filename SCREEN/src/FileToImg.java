@@ -11,9 +11,9 @@ public class FileToImg {
     int frameBlackLength=1;
     int frameVaryLength=1;
     int contentLength=76;
-    int blockLength=10;
+    int blockLength=6;
     int grayCodeLength=10;
-    int ecByteNum=38;
+    int ecByteNum=76;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test8/");
@@ -107,6 +107,12 @@ public class FileToImg {
                     }
                 }
             }
+            if(i%2==0){
+                g.fillRect((frameWhiteLength + frameBlackLength) * blockLength, (frameWhiteLength + frameBlackLength) * blockLength, blockLength, (contentLength+frameVaryLength)*blockLength);
+            }else {
+                g.fillRect(stopOffset,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, (contentLength+frameVaryLength)*blockLength);
+            }
+            //g.fillRect(stopOffset,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
             addFrame(g);
             addGrayCode(g,CRC8.toString(i)+imgAmountString);
             g.dispose();
@@ -127,8 +133,8 @@ public class FileToImg {
         int vBlockLength=frameVaryLength*blockLength;
         for(int i=startOffset;i<stopOffset;i+=vBlockLength*2){
             //g.fillRect(i,startOffset,vBlockLength,vBlockLength);
-            g.fillRect(startOffset,i,vBlockLength,vBlockLength);
-            g.fillRect(stopOffset,i,vBlockLength,vBlockLength);
+            //g.fillRect(startOffset,i,vBlockLength,vBlockLength);
+            //g.fillRect(stopOffset,i,vBlockLength,vBlockLength);
             g.fillRect(i,stopOffset,vBlockLength,vBlockLength);
         }
         startOffset=frameWhiteLength*blockLength;
@@ -140,19 +146,21 @@ public class FileToImg {
         g.fillRect(stopOffset-bBlockLength,startOffset,bBlockLength,stopOffset-startOffset);
     }
     public void addGrayCode(Graphics2D g,String grayCode){
-        System.out.println(grayCode);
+        //System.out.println(grayCode);
         int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
         int stopOffset=startOffset+(contentLength+frameVaryLength)*blockLength;
         int vBlockLength=frameVaryLength*blockLength;
         int i;
         for(i=0;i<grayCode.length();i++){
             if(grayCode.charAt(i)=='0'){
-                g.fillRect(startOffset+i*vBlockLength,startOffset,vBlockLength,vBlockLength);
+                g.fillRect(startOffset+(frameVaryLength+1)*blockLength+i*vBlockLength,startOffset,vBlockLength,vBlockLength);
             }
         }
-        i=startOffset+i*vBlockLength;
+
+        i=startOffset+(frameVaryLength+1+i)*vBlockLength;
         for(;i<stopOffset;i+=vBlockLength){
             g.fillRect(i,startOffset,vBlockLength,vBlockLength);
         }
+
     }
 }
