@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/jcodec-0.1.9.jar!/" />
+          <root url="jar://$USER_HOME$/Downloads/openrq-3.3.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

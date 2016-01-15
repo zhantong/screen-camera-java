@@ -1,7 +1,18 @@
+import net.fec.openrq.EncodingPacket;
+import net.fec.openrq.OpenRQ;
+import net.fec.openrq.encoder.DataEncoder;
+import net.fec.openrq.encoder.SourceBlockEncoder;
+import net.fec.openrq.parameters.FECParameters;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by zhantong on 15/11/11.
@@ -16,9 +27,54 @@ public class FileToImg {
     int ecByteNum=76;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
-        f.toImage(f.readFile("/Users/zhantong/Desktop/test1.txt"),"/Users/zhantong/Desktop/test8/");
+        String s=f.readFile("/Users/zhantong/Desktop/test1.txt");
+        f.toImage(s,"/Users/zhantong/Desktop/test8/");
     }
-    public String readFile(String path){
+    public String readFile(String filePath){
+        List<byte[]> buffer=new LinkedList<>();
+        Path path= Paths.get(filePath);
+        byte[] byteData=null;
+        try {
+            byteData = Files.readAllBytes(path);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        int length=contentLength*contentLength/8-ecByteNum-8;
+        FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10));
+        System.out.println("length:"+byteData.length+"\tblock length:"+length+"\tblocks:"+parameters.numberOfSourceBlocks());
+        DataEncoder dataEncoder= OpenRQ.newEncoder(byteData,parameters);
+        int count=0;
+        for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
+            for(EncodingPacket encodingPacket:sourceBlockEncoder.sourcePacketsIterable()){
+                byte[] encode=encodingPacket.asArray();
+                buffer.add(encode);
+            }
+            System.out.println(++count);
+        }
+        buffer.remove(buffer.size()-1);
+        buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacketsIterable(1).iterator().next().asArray());
+        for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
+            for(EncodingPacket encodingPacket:sourceBlockEncoder.repairPacketsIterable(2)){
+                byte[] encode=encodingPacket.asArray();
+                buffer.add(encode);
+            }
+        }
+        ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.QR_CODE_FIELD_256);
+        StringBuffer stringBuffer=new StringBuffer();
+        for(byte[] b:buffer){
+            int[] c=new int[contentLength*contentLength/8];
+            for(int i=0;i<b.length;i++){
+                c[i]=b[i]&0xff;
+            }
+            encoder.encode(c,ecByteNum);
+            for(int k:c){
+                String s = Integer.toBinaryString(k);
+                int temp=Integer.parseInt(s);
+                stringBuffer.append(String.format("%1$08d",temp));
+            }
+        }
+        return stringBuffer.toString();
+        /*
         File inFile=new File(path);
         FileInputStream fileInputStream=null;
         try{
@@ -60,21 +116,24 @@ public class FileToImg {
                     break;
                 }
             }
-            /*
-            while((i=fileInputStream.read())!=-1) {
-                String b = Integer.toBinaryString(i);
-                int temp=Integer.parseInt(b);
-                stringBuffer.append(String.format("%1$08d",temp));
-                //System.out.println(i);
-            }
-            */
+
+
+//            while((i=fileInputStream.read())!=-1) {
+//                String b = Integer.toBinaryString(i);
+//                int temp=Integer.parseInt(b);
+//                stringBuffer.append(String.format("%1$08d",temp));
+//                //System.out.println(i);
+//            }
+
             System.out.println("total length:"+total_length);
             System.out.println("byte length:"+byte_length);
             return stringBuffer.toString();
         }catch (IOException e){
             e.printStackTrace();
         }
+
         return null;
+        */
     }
     public void toImage(String biData,String path){
         String imgType="png";
