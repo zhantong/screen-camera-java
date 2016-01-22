@@ -2,13 +2,14 @@
  * Created by zhantong on 15/12/10.
  */
 public class CRC8 {
-    private static String pad16=String.format("%016d",0);;
+    private static String pad16=String.format("%016d",0);
+    private static String pad32=String.format("%032d",0);
     private static String Pad8=String.format("%08d",0);
     public static String toString(int x){
         byte crc=calcCrc8(x);
         String c=Integer.toBinaryString(crc&0xff);
         String s=Integer.toBinaryString(x);
-        return pad16.substring(s.length())+s+Pad8.substring(c.length())+c;
+        return pad32.substring(s.length())+s+Pad8.substring(c.length())+c;
     }
     public static int toInt(String gray){
         int intGray=Integer.parseInt(gray,2);

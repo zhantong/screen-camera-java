@@ -25,10 +25,11 @@ public class FileToImg {
     int blockLength=6;
     int grayCodeLength=10;
     int ecByteNum=76;
+    int fileByteNum;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
-        String s=f.readFile("/Users/zhantong/Desktop/test1.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test8/");
+        String s=f.readFile("/Users/zhantong/Desktop/test2.txt");
+        f.toImage(s,"/Users/zhantong/Desktop/test14/");
     }
     public String readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -39,6 +40,7 @@ public class FileToImg {
         }catch (IOException e){
             e.printStackTrace();
         }
+        fileByteNum=byteData.length;
         int length=contentLength*contentLength/8-ecByteNum-8;
         FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10));
         System.out.println("length:"+byteData.length+"\tblock length:"+length+"\tblocks:"+parameters.numberOfSourceBlocks());
@@ -54,7 +56,7 @@ public class FileToImg {
         buffer.remove(buffer.size()-1);
         buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacketsIterable(1).iterator().next().asArray());
         for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
-            for(EncodingPacket encodingPacket:sourceBlockEncoder.repairPacketsIterable(2)){
+            for(EncodingPacket encodingPacket:sourceBlockEncoder.repairPacketsIterable(6)){
                 byte[] encode=encodingPacket.asArray();
                 buffer.add(encode);
             }
@@ -173,7 +175,8 @@ public class FileToImg {
             }
             //g.fillRect(stopOffset,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
             addFrame(g);
-            addGrayCode(g,CRC8.toString(i)+imgAmountString);
+            //addGrayCode(g,CRC8.toString(i)+imgAmountString);
+            addGrayCode(g,CRC8.toString(fileByteNum));
             g.dispose();
             img.flush();
             String destPath=String.format("%s%06d.%s",path,i,imgType);
