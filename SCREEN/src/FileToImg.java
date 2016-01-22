@@ -42,6 +42,18 @@ public class FileToImg {
         }
         fileByteNum=byteData.length;
         int length=contentLength*contentLength/8-ecByteNum-8;
+        if(fileByteNum%length!=0){
+            int vacant=length-fileByteNum%length;
+            byte[] temp=new byte[vacant];
+            temp[0]=-128;
+            for(int i=1;i<vacant;i++){
+                temp[i]=0;
+            }
+            byte[] data=new byte[fileByteNum+vacant];
+            System.arraycopy(byteData,0,data,0,byteData.length);
+            System.arraycopy(temp,0,data,byteData.length,temp.length);
+            byteData=data;
+        }
         FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10));
         System.out.println("length:"+byteData.length+"\tblock length:"+length+"\tblocks:"+parameters.numberOfSourceBlocks());
         DataEncoder dataEncoder= OpenRQ.newEncoder(byteData,parameters);
@@ -50,13 +62,14 @@ public class FileToImg {
             for(EncodingPacket encodingPacket:sourceBlockEncoder.sourcePacketsIterable()){
                 byte[] encode=encodingPacket.asArray();
                 buffer.add(encode);
+                System.out.println("packet length:"+encode.length);
             }
             System.out.println(++count);
         }
-        buffer.remove(buffer.size()-1);
-        buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacketsIterable(1).iterator().next().asArray());
+        //buffer.remove(buffer.size()-1);
+        //buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacketsIterable(1).iterator().next().asArray());
         for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
-            for(EncodingPacket encodingPacket:sourceBlockEncoder.repairPacketsIterable(6)){
+            for(EncodingPacket encodingPacket:sourceBlockEncoder.repairPacketsIterable(2)){
                 byte[] encode=encodingPacket.asArray();
                 buffer.add(encode);
             }
