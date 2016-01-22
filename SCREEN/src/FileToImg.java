@@ -54,7 +54,7 @@ public class FileToImg {
             System.arraycopy(temp,0,data,byteData.length,temp.length);
             byteData=data;
         }
-        FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10));
+        FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10)+1);
         System.out.println("length:"+byteData.length+"\tblock length:"+length+"\tblocks:"+parameters.numberOfSourceBlocks());
         DataEncoder dataEncoder= OpenRQ.newEncoder(byteData,parameters);
         int count=0;
@@ -68,12 +68,20 @@ public class FileToImg {
         }
         //buffer.remove(buffer.size()-1);
         //buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacketsIterable(1).iterator().next().asArray());
+        for(int i=1;i<=5;i++){
+            for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
+                byte[] encode=sourceBlockEncoder.repairPacket(sourceBlockEncoder.numberOfSourceSymbols()+i).asArray();
+                buffer.add(encode);
+            }
+        }
+        /*
         for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
             for(EncodingPacket encodingPacket:sourceBlockEncoder.repairPacketsIterable(2)){
                 byte[] encode=encodingPacket.asArray();
                 buffer.add(encode);
             }
         }
+        */
         ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.QR_CODE_FIELD_256);
         StringBuffer stringBuffer=new StringBuffer();
         for(byte[] b:buffer){
