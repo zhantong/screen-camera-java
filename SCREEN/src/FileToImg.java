@@ -29,7 +29,7 @@ public class FileToImg {
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         String s=f.readFile("/Users/zhantong/Desktop/test2.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test14/");
+        f.toImage(s,"/Users/zhantong/Desktop/test16/");
     }
     public String readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -41,7 +41,9 @@ public class FileToImg {
             e.printStackTrace();
         }
         fileByteNum=byteData.length;
+        System.out.println("file byte number:"+fileByteNum);
         int length=contentLength*contentLength/8-ecByteNum-8;
+        /*
         if(fileByteNum%length!=0){
             int vacant=length-fileByteNum%length;
             byte[] temp=new byte[vacant];
@@ -49,12 +51,15 @@ public class FileToImg {
             for(int i=1;i<vacant;i++){
                 temp[i]=0;
             }
-            byte[] data=new byte[fileByteNum+vacant];
+            fileByteNum+=vacant;
+            byte[] data=new byte[fileByteNum];
             System.arraycopy(byteData,0,data,0,byteData.length);
             System.arraycopy(temp,0,data,byteData.length,temp.length);
             byteData=data;
         }
+        */
         FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10)+1);
+        System.out.println(parameters.toString());
         System.out.println("length:"+byteData.length+"\tblock length:"+length+"\tblocks:"+parameters.numberOfSourceBlocks());
         DataEncoder dataEncoder= OpenRQ.newEncoder(byteData,parameters);
         int count=0;
@@ -66,12 +71,13 @@ public class FileToImg {
             }
             System.out.println(++count);
         }
-        //buffer.remove(buffer.size()-1);
-        //buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacketsIterable(1).iterator().next().asArray());
+        buffer.remove(buffer.size()-1);
+        buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacket(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).numberOfSourceSymbols()).asArray());
         for(int i=1;i<=5;i++){
             for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
                 byte[] encode=sourceBlockEncoder.repairPacket(sourceBlockEncoder.numberOfSourceSymbols()+i).asArray();
                 buffer.add(encode);
+                System.out.println("packet length:"+encode.length);
             }
         }
         /*
