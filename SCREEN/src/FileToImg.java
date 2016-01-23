@@ -29,7 +29,7 @@ public class FileToImg {
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         String s=f.readFile("/Users/zhantong/Desktop/test2.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test16/");
+        f.toImage(s,"/Users/zhantong/Desktop/test17/");
     }
     public String readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -224,12 +224,13 @@ public class FileToImg {
             //g.fillRect(i,startOffset,vBlockLength,vBlockLength);
             //g.fillRect(startOffset,i,vBlockLength,vBlockLength);
             //g.fillRect(stopOffset,i,vBlockLength,vBlockLength);
+            g.fillRect(frameWhiteLength*blockLength,i,vBlockLength,vBlockLength);
             g.fillRect(i,stopOffset,vBlockLength,vBlockLength);
         }
         startOffset=frameWhiteLength*blockLength;
         stopOffset=startOffset+(2*(frameBlackLength+frameVaryLength)+contentLength)*blockLength;
         int bBlockLength=frameBlackLength*blockLength;
-        g.fillRect(startOffset,startOffset,bBlockLength,stopOffset-startOffset);
+        //g.fillRect(startOffset,startOffset,bBlockLength,stopOffset-startOffset);
         g.fillRect(startOffset,startOffset,stopOffset-startOffset,bBlockLength);
         g.fillRect(startOffset,stopOffset-bBlockLength,stopOffset-startOffset,bBlockLength);
         g.fillRect(stopOffset-bBlockLength,startOffset,bBlockLength,stopOffset-startOffset);
