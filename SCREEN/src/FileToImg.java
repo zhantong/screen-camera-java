@@ -41,15 +41,16 @@ public class FileToImg {
         byte[] byteData=null;
         try {
             byteData = Files.readAllBytes(path);
+            fileByteNum=byteData.length;
         }catch (IOException e){
             e.printStackTrace();
         }
-        fileByteNum=byteData.length;
         System.out.println("file byte number:"+fileByteNum);
-        int length=contentLength*contentLength/8-ecNum*ecLength/8-8;
-        FECParameters parameters=FECParameters.newParameters(byteData.length,length,byteData.length/(length*10)+1);
+        int realByteLength=contentLength*contentLength/8-ecNum*ecLength/8-8;
+        FECParameters parameters=FECParameters.newParameters(fileByteNum,realByteLength,fileByteNum/(realByteLength*10)+1);
         System.out.println(parameters.toString());
-        System.out.println("length:"+byteData.length+"\tblock length:"+length+"\tblocks:"+parameters.numberOfSourceBlocks());
+        System.out.println("length:"+fileByteNum+"\tblock length:"+realByteLength+"\tblocks:"+parameters.numberOfSourceBlocks());
+        assert byteData!=null;
         DataEncoder dataEncoder= OpenRQ.newEncoder(byteData,parameters);
         int count=0;
         for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
@@ -75,24 +76,18 @@ public class FileToImg {
         //ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.DATA_MATRIX_FIELD_256);
         ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
         for(byte[] b:buffer){
-            BitSet bitSet=new BitSet();
-            for(int i=0;i<b.length*8;i++){
-                if((b[i/8]&(1<<(i%8)))>0){
-                    bitSet.set(i);
-                }
-            }
             int[] ordered=new int[contentLength*contentLength/ecLength];
             for(int i=0;i<b.length*8;i++){
-                if(bitSet.get(i)){
+                if((b[i/8]&(1<<(i%8)))>0){
                     ordered[i/ecLength]|=1<<(i%ecLength);
                 }
             }
             encoder.encode(ordered,ecNum);
             list.add(ordered);
-            int startOffset=b.length*8/ecLength;
-            for(int i=0;i<ecLength*ecNum;i++){
-                if((ordered[startOffset+i/ecLength]&(1<<(i%ecLength)))>0){
-                    bitSet.set(startOffset*ecLength+i);
+            BitSet bitSet=new BitSet();
+            for(int i=0;i<contentLength*contentLength;i++){
+                if((ordered[i/ecLength]&(1<<(i%ecLength)))>0){
+                    bitSet.set(i);
                 }
             }
             bitSets.add(bitSet);
