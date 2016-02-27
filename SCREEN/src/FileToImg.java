@@ -22,15 +22,15 @@ public class FileToImg {
     int frameBlackLength=1;
     int frameVaryLength=1;
     int frameVaryTwoLength=1;
-    int contentLength=76;
-    int blockLength=6;
+    int contentLength=44;
+    int blockLength=10;
     int grayCodeLength=10;
-    int ecByteNum=76;
+    int ecByteNum=42;
     int fileByteNum;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         String s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test1/");
+        f.toImage(s,"/Users/zhantong/Desktop/test6/");
     }
     public String readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -89,7 +89,10 @@ public class FileToImg {
             }
         }
         */
-        ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.QR_CODE_FIELD_256);
+
+        LinkedList<int[]> list=new LinkedList<>();
+
+        ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.DATA_MATRIX_FIELD_256);
         StringBuffer stringBuffer=new StringBuffer();
         for(byte[] b:buffer){
             int[] c=new int[contentLength*contentLength/8];
@@ -97,12 +100,24 @@ public class FileToImg {
                 c[i]=b[i]&0xff;
             }
             encoder.encode(c,ecByteNum);
+
+            list.add(c);
+
             for(int k:c){
                 String s = Integer.toBinaryString(k);
                 int temp=Integer.parseInt(s);
                 stringBuffer.append(String.format("%1$08d",temp));
             }
         }
+
+        ObjectOutputStream outputStream;
+        try {
+            outputStream = new ObjectOutputStream(new FileOutputStream("test.txt"));
+            outputStream.writeObject(list);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
         return stringBuffer.toString();
         /*
         File inFile=new File(path);

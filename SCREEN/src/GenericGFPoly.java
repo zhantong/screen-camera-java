@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 /**
  * <p>Represents a polynomial whose coefficients are elements of a GF.
  * Instances of this class are immutable.</p>
@@ -54,10 +55,10 @@ final class GenericGFPoly {
       } else {
         this.coefficients = new int[coefficientsLength - firstNonZero];
         System.arraycopy(coefficients,
-            firstNonZero,
-            this.coefficients,
-            0,
-            this.coefficients.length);
+                firstNonZero,
+                this.coefficients,
+                0,
+                this.coefficients.length);
       }
     } else {
       this.coefficients = coefficients;
@@ -159,7 +160,7 @@ final class GenericGFPoly {
       int aCoeff = aCoefficients[i];
       for (int j = 0; j < bLength; j++) {
         product[i + j] = GenericGF.addOrSubtract(product[i + j],
-            field.multiply(aCoeff, bCoefficients[j]));
+                field.multiply(aCoeff, bCoefficients[j]));
       }
     }
     return new GenericGFPoly(field, product);

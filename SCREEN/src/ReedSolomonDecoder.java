@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 /**
  * <p>Implements Reed-Solomon decoding, as the name implies.</p>
  *
@@ -69,7 +70,7 @@ public final class ReedSolomonDecoder {
     }
     GenericGFPoly syndrome = new GenericGFPoly(field, syndromeCoefficients);
     GenericGFPoly[] sigmaOmega =
-        runEuclideanAlgorithm(field.buildMonomial(twoS, 1), syndrome, twoS);
+            runEuclideanAlgorithm(field.buildMonomial(twoS, 1), syndrome, twoS);
     GenericGFPoly sigma = sigmaOmega[0];
     GenericGFPoly omega = sigmaOmega[1];
     int[] errorLocations = findErrorLocations(sigma);
@@ -84,7 +85,7 @@ public final class ReedSolomonDecoder {
   }
 
   private GenericGFPoly[] runEuclideanAlgorithm(GenericGFPoly a, GenericGFPoly b, int R)
-      throws ReedSolomonException {
+          throws ReedSolomonException {
     // Assume a's degree is >= b's
     if (a.getDegree() < b.getDegree()) {
       GenericGFPoly temp = a;
@@ -121,7 +122,7 @@ public final class ReedSolomonDecoder {
       }
 
       t = q.multiply(tLast).addOrSubtract(tLastLast);
-      
+
       if (r.getDegree() >= rLast.getDegree()) {
         throw new IllegalStateException("Division algorithm failed to reduce polynomial?");
       }
@@ -177,7 +178,7 @@ public final class ReedSolomonDecoder {
         }
       }
       result[i] = field.multiply(errorEvaluator.evaluateAt(xiInverse),
-          field.inverse(denominator));
+              field.inverse(denominator));
       if (field.getGeneratorBase() != 0) {
         result[i] = field.multiply(result[i], xiInverse);
       }
