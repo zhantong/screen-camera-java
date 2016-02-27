@@ -11,6 +11,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,18 +24,20 @@ public class FileToImg {
     int frameBlackLength=1;
     int frameVaryLength=1;
     int frameVaryTwoLength=1;
-    int contentLength=44;
-    int blockLength=10;
+    int contentLength=80;
+    int blockLength=6;
     int grayCodeLength=10;
-    int ecByteNum=42;
+    int ecNum=80;
+    int ecLength=8;
     int fileByteNum;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
-        String s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test6/");
+        List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
+        f.toImage(s,"/Users/zhantong/Desktop/test8/");
     }
-    public String readFile(String filePath){
+    public List<BitSet> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
+        List<BitSet> bitSets=new LinkedList<>();
         Path path= Paths.get(filePath);
         byte[] byteData=null;
         try {
@@ -43,7 +47,7 @@ public class FileToImg {
         }
         fileByteNum=byteData.length;
         System.out.println("file byte number:"+fileByteNum);
-        int length=contentLength*contentLength/8-ecByteNum-8;
+        int length=contentLength*contentLength/8-ecNum*ecLength/8-8;
         /*
         if(fileByteNum%length!=0){
             int vacant=length-fileByteNum%length;
@@ -93,21 +97,65 @@ public class FileToImg {
         LinkedList<int[]> list=new LinkedList<>();
 
         ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.DATA_MATRIX_FIELD_256);
+        //ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
         StringBuffer stringBuffer=new StringBuffer();
         for(byte[] b:buffer){
-            int[] c=new int[contentLength*contentLength/8];
-            for(int i=0;i<b.length;i++){
-                c[i]=b[i]&0xff;
+            BitSet bitSet=new BitSet();
+            for(int i=0;i<b.length*8;i++){
+                if((b[i/8]&(1<<(i%8)))>0){
+                    bitSet.set(i);
+                }
             }
-            encoder.encode(c,ecByteNum);
+            int[] ordered=new int[contentLength*contentLength/ecLength];
+            for(int i=0;i<b.length*8;i++){
+                if(bitSet.get(i)){
+                    ordered[i/ecLength]|=1<<(i%ecLength);
+                }
+            }
+            encoder.encode(ordered,ecNum);
+            //System.out.println("b length"+b.length+"\tordered length:"+ordered.length+"\tecNum:"+ecNum);
+            /*
+            int[] test=new int[ordered.length];
+            System.arraycopy(ordered,0,test,0,ordered.length);
+            encoder.encode(ordered,ecNum);
+            for(int i=0;i<b.length;i++){
+                if(ordered[i]!=test[i]){
+                    System.out.println("wrong");
+                }
+            }
+            */
+            list.add(ordered);
+            int startOffset=b.length*8/ecLength;
+            for(int i=0;i<ecLength*ecNum;i++){
+                if((ordered[startOffset+i/ecLength]&(1<<(i%ecLength)))>0){
+                    bitSet.set(startOffset*ecLength+i);
+                }
+            }
+            /*
+            int[] test=new int[contentLength*contentLength/ecLength];
+            for(int i=0;i<test.length*ecLength;i++){
+                if(bitSet.get(i)){
+                    test[i/ecLength]|=1<<(i%ecLength);
+                }
+            }
+            int c=0;
+            for(int i=0;i<test.length;i++){
+                if(ordered[i]!=test[i]){
+                    c++;
+                }
+            }
+            System.out.println("wrong number:"+c);
+            System.out.println(Arrays.equals(ordered,test));
+            */
 
-            list.add(c);
-
-            for(int k:c){
+            /*
+            for(int k:ordered){
                 String s = Integer.toBinaryString(k);
                 int temp=Integer.parseInt(s);
                 stringBuffer.append(String.format("%1$08d",temp));
             }
+            */
+            bitSets.add(bitSet);
         }
 
         ObjectOutputStream outputStream;
@@ -118,7 +166,9 @@ public class FileToImg {
             e.printStackTrace();
         }
 
-        return stringBuffer.toString();
+        //return stringBuffer.toString();
+        return bitSets;
+
         /*
         File inFile=new File(path);
         FileInputStream fileInputStream=null;
@@ -180,26 +230,34 @@ public class FileToImg {
         return null;
         */
     }
-    public void toImage(String biData,String path){
+    public void toImage(List<BitSet> bitSets,String path){
         String imgType="png";
         int length=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
         int startOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
         int stopOffset=startOffset+contentLength*blockLength;
-        int biDataLength=biData.length();
-        int imgAmount=(int)Math.ceil((double)biDataLength/(contentLength*contentLength));
-        int index = 0;
+        //int biDataLength=biData.length();
+        //int imgAmount=(int)Math.ceil((double)biDataLength/(contentLength*contentLength));
+        //int index = 0;
         //GrayCode grayCode=new GrayCode(grayCodeLength);
-        String imgAmountString=CRC8.toString(imgAmount);
-        for(int i=1;i<=imgAmount;i++) {
+        //String imgAmountString=CRC8.toString(imgAmount);
+        //for(int i=1;i<=imgAmount;i++) {
+        int i=0;
+        for(BitSet bitSet:bitSets){
+            i++;
             BufferedImage img = new BufferedImage(length, length, BufferedImage.TYPE_BYTE_BINARY);
             Graphics2D g = img.createGraphics();
             g.setBackground(Color.WHITE);
             g.clearRect(0, 0, length, length);
             g.setColor(Color.BLACK);
-
-            boolean flag = true;
+            int index = 0;
+            //boolean flag = true;
             for (int y = startOffset; y < stopOffset; y += blockLength) {
                 for (int x = startOffset; x < stopOffset; x += blockLength) {
+                    if(!bitSet.get(index)){
+                        g.fillRect(x, y, blockLength, blockLength);
+                    }
+                    index++;
+                    /*
                     if (index < biDataLength) {
                         if (biData.charAt(index) == '0') {
                             g.fillRect(x, y, blockLength, blockLength);
@@ -209,8 +267,10 @@ public class FileToImg {
                         g.fillRect(x, y, blockLength, blockLength);
                         flag = false;
                     }
+                    */
                 }
             }
+            //System.out.println("index:"+index);
             if(i%2==0){
                 g.fillRect((frameWhiteLength + frameBlackLength) * blockLength, (frameWhiteLength + frameBlackLength) * blockLength, blockLength, (contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength);
                 g.fillRect((frameWhiteLength+2*frameVaryLength+frameVaryTwoLength+contentLength)*blockLength,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, (contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength);
