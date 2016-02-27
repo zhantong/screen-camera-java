@@ -32,7 +32,7 @@ public class FileToImg {
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test9/");
+        f.toImage(s,"/Users/zhantong/Desktop/test12/");
     }
     public List<BitSet> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -47,7 +47,8 @@ public class FileToImg {
         }
         System.out.println("file byte number:"+fileByteNum);
         int realByteLength=contentLength*contentLength/8-ecNum*ecLength/8-8;
-        FECParameters parameters=FECParameters.newParameters(fileByteNum,realByteLength,fileByteNum/(realByteLength*10)+1);
+        //FECParameters parameters=FECParameters.newParameters(fileByteNum,realByteLength,fileByteNum/(realByteLength*10)+1);
+        FECParameters parameters=FECParameters.newParameters(fileByteNum,realByteLength,1);
         System.out.println(parameters.toString());
         System.out.println("length:"+fileByteNum+"\tblock length:"+realByteLength+"\tblocks:"+parameters.numberOfSourceBlocks());
         assert byteData!=null;
@@ -63,7 +64,8 @@ public class FileToImg {
         }
         buffer.remove(buffer.size()-1);
         buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacket(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).numberOfSourceSymbols()).asArray());
-        for(int i=1;i<=5;i++){
+        int repairNum=buffer.size()/2;
+        for(int i=1;i<=repairNum;i++){
             for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
                 byte[] encode=sourceBlockEncoder.repairPacket(sourceBlockEncoder.numberOfSourceSymbols()+i).asArray();
                 buffer.add(encode);
