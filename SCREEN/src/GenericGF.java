@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 /**
  * <p>This class contains utility methods for performing mathematical operations over
  * the Galois Fields. Operations use a given primitive polynomial in calculations.</p>
@@ -151,14 +152,14 @@ public final class GenericGF {
   public int getSize() {
     return size;
   }
-  
+
   public int getGeneratorBase() {
     return generatorBase;
   }
-  
+
   @Override
   public String toString() {
     return "GF(0x" + Integer.toHexString(primitive) + ',' + size + ')';
   }
-  
+
 }
