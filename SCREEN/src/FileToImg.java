@@ -25,14 +25,13 @@ public class FileToImg {
     int frameVaryTwoLength=1;
     int contentLength=80;
     int blockLength=6;
-    int grayCodeLength=10;
     int ecNum=80;
     int ecLength=10;
     int fileByteNum;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test12/");
+        f.toImage(s,"/Users/zhantong/Desktop/test13/");
     }
     public List<BitSet> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -109,6 +108,16 @@ public class FileToImg {
         int length=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
         int startOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
         int stopOffset=startOffset+contentLength*blockLength;
+        File folder=new File(path);
+        boolean b=false;
+        if(!folder.exists()){
+            b=folder.mkdirs();
+        }
+        if(b){
+            System.out.println("Directory successfully created");
+        }else{
+            System.out.println("Directory already exists");
+        }
         int i=0;
         for(BitSet bitSet:bitSets){
             i++;
