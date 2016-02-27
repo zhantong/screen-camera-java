@@ -28,12 +28,12 @@ public class FileToImg {
     int blockLength=6;
     int grayCodeLength=10;
     int ecNum=80;
-    int ecLength=8;
+    int ecLength=10;
     int fileByteNum;
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test8/");
+        f.toImage(s,"/Users/zhantong/Desktop/test9/");
     }
     public List<BitSet> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -96,8 +96,8 @@ public class FileToImg {
 
         LinkedList<int[]> list=new LinkedList<>();
 
-        ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.DATA_MATRIX_FIELD_256);
-        //ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
+        //ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.DATA_MATRIX_FIELD_256);
+        ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
         StringBuffer stringBuffer=new StringBuffer();
         for(byte[] b:buffer){
             BitSet bitSet=new BitSet();
