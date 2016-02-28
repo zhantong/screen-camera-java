@@ -31,7 +31,7 @@ public class FileToImg {
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test13/");
+        f.toImage(s,"/Users/zhantong/Desktop/test14/");
     }
     public List<BitSet> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -105,9 +105,15 @@ public class FileToImg {
     }
     public void toImage(List<BitSet> bitSets,String path){
         String imgType="png";
-        int length=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
-        int startOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
-        int stopOffset=startOffset+contentLength*blockLength;
+        //int length=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
+        int imgWidth=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
+        int imgHeight=((frameWhiteLength+frameBlackLength)*2+contentLength)*blockLength;
+        int contentLeftOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
+        int contentTopOffset=(frameWhiteLength+frameBlackLength)*blockLength;
+        int contentRightOffset=contentLeftOffset+contentLength*blockLength;
+        int contentBottomOffset=contentTopOffset+contentLength*blockLength;
+        //int startOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
+        //int stopOffset=startOffset+contentLength*blockLength;
         File folder=new File(path);
         boolean b=false;
         if(!folder.exists()){
@@ -121,14 +127,14 @@ public class FileToImg {
         int i=0;
         for(BitSet bitSet:bitSets){
             i++;
-            BufferedImage img = new BufferedImage(length, length, BufferedImage.TYPE_BYTE_BINARY);
+            BufferedImage img = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_BYTE_BINARY);
             Graphics2D g = img.createGraphics();
             g.setBackground(Color.WHITE);
-            g.clearRect(0, 0, length, length);
+            g.clearRect(0, 0, imgWidth, imgHeight);
             g.setColor(Color.BLACK);
             int index = 0;
-            for (int y = startOffset; y < stopOffset; y += blockLength) {
-                for (int x = startOffset; x < stopOffset; x += blockLength) {
+            for (int y = contentTopOffset; y < contentBottomOffset; y += blockLength) {
+                for (int x = contentLeftOffset; x < contentRightOffset; x += blockLength) {
                     if(!bitSet.get(index)){
                         g.fillRect(x, y, blockLength, blockLength);
                     }
@@ -137,12 +143,12 @@ public class FileToImg {
             }
             //System.out.println("index:"+index);
             if(i%2==0){
-                g.fillRect((frameWhiteLength + frameBlackLength) * blockLength, (frameWhiteLength + frameBlackLength) * blockLength, blockLength, (contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength);
-                g.fillRect((frameWhiteLength+2*frameVaryLength+frameVaryTwoLength+contentLength)*blockLength,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, (contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength);
+                g.fillRect(contentLeftOffset-(frameVaryLength+frameVaryTwoLength)*blockLength, contentTopOffset, blockLength, contentLength*blockLength);
+                g.fillRect(contentRightOffset,contentTopOffset,  blockLength, contentLength*blockLength);
                 //g.fillRect((frameWhiteLength+frameBlackLength)*blockLength,(frameWhiteLength+frameBlackLength)*blockLength,(contentLength+frameVaryLength)*blockLength,blockLength);
             }else {
-                g.fillRect((frameWhiteLength+frameBlackLength+2*frameVaryLength+frameVaryTwoLength+contentLength)*blockLength,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, (contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength);
-                g.fillRect((frameWhiteLength + frameBlackLength+frameVaryLength) * blockLength, (frameWhiteLength + frameBlackLength) * blockLength, blockLength, (contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength);
+                g.fillRect((frameWhiteLength+frameBlackLength+2*frameVaryLength+frameVaryTwoLength+contentLength)*blockLength,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
+                g.fillRect(contentLeftOffset-frameVaryTwoLength*blockLength, contentTopOffset, blockLength, contentLength*blockLength);
                 //g.fillRect((frameWhiteLength+frameBlackLength)*blockLength,stopOffset,(contentLength+frameVaryLength)*blockLength,blockLength);
             }
             //g.fillRect(stopOffset,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
@@ -162,41 +168,48 @@ public class FileToImg {
     }
 
     public void addFrame(Graphics2D g){
-        int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
-        int stopOffset=startOffset+(contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength;
+        int frameLeftOffset=frameWhiteLength*blockLength;
+        int frameTopOffset=frameLeftOffset;
+        int frameRightOffset=frameLeftOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
+        int frameBottomOffset=frameTopOffset+(2*frameBlackLength+contentLength)*blockLength;
+        //int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
+        //int stopOffset=startOffset+(contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength;
         int vBlockLength=frameVaryLength*blockLength;
-        for(int i=startOffset;i<stopOffset;i+=vBlockLength*2){
+        for(int i=frameTopOffset;i<frameBottomOffset;i+=vBlockLength*2){
             //g.fillRect(i,startOffset,vBlockLength,vBlockLength);
             //g.fillRect(startOffset,i,vBlockLength,vBlockLength);
             //g.fillRect(stopOffset,i,vBlockLength,vBlockLength);
-            g.fillRect(frameWhiteLength*blockLength,i,vBlockLength,vBlockLength);
+            g.fillRect(frameLeftOffset,i,vBlockLength,vBlockLength);
             //g.fillRect(i,stopOffset,vBlockLength,vBlockLength);
         }
-        startOffset=frameWhiteLength*blockLength;
-        stopOffset=startOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
+        //startOffset=frameWhiteLength*blockLength;
+        //stopOffset=startOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
         int bBlockLength=frameBlackLength*blockLength;
         //g.fillRect(startOffset,startOffset,bBlockLength,stopOffset-startOffset);
         //g.fillRect(startOffset,startOffset,stopOffset-startOffset,bBlockLength);
-        g.fillRect(startOffset,stopOffset-bBlockLength,stopOffset-startOffset,bBlockLength);
-        g.fillRect(stopOffset-bBlockLength,startOffset,bBlockLength,stopOffset-startOffset);
+        g.fillRect(frameLeftOffset,frameBottomOffset-bBlockLength,frameRightOffset-frameLeftOffset,bBlockLength);
+        g.fillRect(frameRightOffset-bBlockLength,frameTopOffset,bBlockLength,frameBottomOffset-frameTopOffset);
     }
     public void addGrayCode(Graphics2D g,String grayCode){
         //System.out.println(grayCode);
         //int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
-        int startOffset=frameWhiteLength*blockLength;
-        int stopOffset=startOffset+(contentLength+frameVaryLength+frameVaryTwoLength*2+frameBlackLength)*blockLength;
-        int vBlockLength=frameVaryLength*blockLength;
+        int headTopOffset=frameWhiteLength*blockLength;
+        int headLeftOffset=headTopOffset;
+        int headRightOffset=headLeftOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
+        //int startOffset=frameWhiteLength*blockLength;
+        //int stopOffset=startOffset+(contentLength+frameVaryLength+frameVaryTwoLength*2+frameBlackLength)*blockLength;
+        int vBlockLength=frameBlackLength*blockLength;
         int i;
         for(i=0;i<grayCode.length();i++){
             if(grayCode.charAt(i)=='0'){
                 //g.fillRect(startOffset+(frameVaryLength+1)*blockLength+i*vBlockLength,startOffset,vBlockLength,vBlockLength);
-                g.fillRect(startOffset+i*vBlockLength,frameWhiteLength*blockLength,vBlockLength,vBlockLength);
+                g.fillRect(headLeftOffset+i*vBlockLength,headTopOffset,vBlockLength,vBlockLength);
             }
         }
 
-        i=startOffset+i*vBlockLength;
-        for(;i<=stopOffset;i+=vBlockLength){
-            g.fillRect(i,frameWhiteLength*blockLength,vBlockLength,vBlockLength);
+        i=headLeftOffset+i*vBlockLength;
+        for(;i<headRightOffset;i+=vBlockLength){
+            g.fillRect(i,headTopOffset,vBlockLength,vBlockLength);
         }
 
     }
