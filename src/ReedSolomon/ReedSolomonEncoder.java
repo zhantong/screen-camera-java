@@ -1,4 +1,4 @@
-/*
+package ReedSolomon;/*
  * Copyright 2008 ZXing authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import ReedSolomon.GenericGF;
+import ReedSolomon.GenericGFPoly;
 
 import java.util.ArrayList;
 import java.util.List;

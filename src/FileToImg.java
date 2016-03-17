@@ -1,3 +1,5 @@
+import ReedSolomon.GenericGF;
+import ReedSolomon.ReedSolomonEncoder;
 import net.fec.openrq.EncodingPacket;
 import net.fec.openrq.OpenRQ;
 import net.fec.openrq.encoder.DataEncoder;
