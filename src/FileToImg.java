@@ -34,7 +34,7 @@ public class FileToImg {
     public static void main(String[] args){
         FileToImg f=new FileToImg();
         List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test14/");
+        f.toImage(s,"/Users/zhantong/Desktop/test19/");
     }
     public List<BitSet> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
@@ -157,7 +157,7 @@ public class FileToImg {
             //g.fillRect(stopOffset,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
             addFrame(g);
             //addGrayCode(g,CRC8.toString(i)+imgAmountString);
-            addGrayCode(g,CRC8.toString(fileByteNum));
+            addGrayCode(g,genHead(fileByteNum));
             g.dispose();
             img.flush();
             String destPath=String.format("%s%06d.%s",path,i,imgType);
@@ -193,27 +193,36 @@ public class FileToImg {
         g.fillRect(frameLeftOffset,frameBottomOffset-bBlockLength,frameRightOffset-frameLeftOffset,bBlockLength);
         g.fillRect(frameRightOffset-bBlockLength,frameTopOffset,bBlockLength,frameBottomOffset-frameTopOffset);
     }
-    public void addGrayCode(Graphics2D g,String grayCode){
+    public void addGrayCode(Graphics2D g,String grayCode) {
         //System.out.println(grayCode);
         //int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
-        int headTopOffset=frameWhiteLength*blockLength;
-        int headLeftOffset=headTopOffset;
-        int headRightOffset=headLeftOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
+        int headTopOffset = frameWhiteLength * blockLength;
+        int headLeftOffset = headTopOffset;
+        int headRightOffset = headLeftOffset + (2 * (frameBlackLength + frameVaryLength + frameVaryTwoLength) + contentLength) * blockLength;
         //int startOffset=frameWhiteLength*blockLength;
         //int stopOffset=startOffset+(contentLength+frameVaryLength+frameVaryTwoLength*2+frameBlackLength)*blockLength;
-        int vBlockLength=frameBlackLength*blockLength;
+        int vBlockLength = frameBlackLength * blockLength;
         int i;
-        for(i=0;i<grayCode.length();i++){
-            if(grayCode.charAt(i)=='0'){
+        for (i = 0; i < grayCode.length(); i++) {
+            if (grayCode.charAt(i) == '0') {
                 //g.fillRect(startOffset+(frameVaryLength+1)*blockLength+i*vBlockLength,startOffset,vBlockLength,vBlockLength);
-                g.fillRect(headLeftOffset+i*vBlockLength,headTopOffset,vBlockLength,vBlockLength);
+                g.fillRect(headLeftOffset + i * vBlockLength, headTopOffset, vBlockLength, vBlockLength);
             }
         }
 
-        i=headLeftOffset+i*vBlockLength;
-        for(;i<headRightOffset;i+=vBlockLength){
-            g.fillRect(i,headTopOffset,vBlockLength,vBlockLength);
+        i = headLeftOffset + i * vBlockLength;
+        for (; i < headRightOffset; i += vBlockLength) {
+            g.fillRect(i, headTopOffset, vBlockLength, vBlockLength);
         }
 
+    }
+    public String genHead(int x){
+        String pad32=String.format("%032d",0);
+        String Pad8=String.format("%08d",0);
+        CRC8 crc=new CRC8();
+        crc.update(x);
+        String c=Integer.toBinaryString((int)crc.getValue());
+        String s=Integer.toBinaryString(x);
+        return pad32.substring(s.length())+s+Pad8.substring(c.length())+c;
     }
 }
