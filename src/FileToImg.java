@@ -4,9 +4,6 @@ import net.fec.openrq.encoder.DataEncoder;
 import net.fec.openrq.encoder.SourceBlockEncoder;
 import net.fec.openrq.parameters.FECParameters;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,23 +19,25 @@ import java.util.List;
  * Created by zhantong on 15/11/11.
  */
 public class FileToImg {
-    int frameWhiteLength=8;
-    int frameBlackLength=1;
-    int frameVaryLength=1;
-    int frameVaryTwoLength=1;
-    int contentLength=80;
+    int frameWhiteBlock =8;
+    int frameBlackBlock =1;
+    int frameVaryFirstBlock =1;
+    int frameVarySecondBlock =1;
+    int contentBlock =80;
     int blockLength=6;
-    int ecNum=80;
-    int ecLength=10;
+    int ecSymbol=80;
+    int ecSymbolBitLength=10;
     int fileByteNum;
     public static void main(String[] args){
+        String inputFilePath="/Users/zhantong/Desktop/test.txt";
+        String outputImageDirectory="/Users/zhantong/Desktop/test5/";
         FileToImg f=new FileToImg();
-        List<BitSet> s=f.readFile("/Users/zhantong/Desktop/test.txt");
-        f.toImage(s,"/Users/zhantong/Desktop/test19/");
+        List<byte[]> byteBuffer=f.readFile(inputFilePath);
+        List<BitSet> bitSets=f.RSEncode(byteBuffer);
+        f.toImage(bitSets,outputImageDirectory);
     }
-    public List<BitSet> readFile(String filePath){
+    public List<byte[]> readFile(String filePath){
         List<byte[]> buffer=new LinkedList<>();
-        List<BitSet> bitSets=new LinkedList<>();
         Path path= Paths.get(filePath);
         byte[] byteData=null;
         try {
@@ -47,77 +46,97 @@ public class FileToImg {
         }catch (IOException e){
             e.printStackTrace();
         }
-        System.out.println("file byte number:"+fileByteNum);
-        int realByteLength=contentLength*contentLength/8-ecNum*ecLength/8-8;
-        //FECParameters parameters=FECParameters.newParameters(fileByteNum,realByteLength,fileByteNum/(realByteLength*10)+1);
+        System.out.println(String.format("file is %d bytes",fileByteNum));
+        int realByteLength= contentBlock * contentBlock /8- ecSymbol * ecSymbolBitLength /8-8;
         FECParameters parameters=FECParameters.newParameters(fileByteNum,realByteLength,1);
-        System.out.println(parameters.toString());
-        System.out.println("length:"+fileByteNum+"\tblock length:"+realByteLength+"\tblocks:"+parameters.numberOfSourceBlocks());
         assert byteData!=null;
         DataEncoder dataEncoder= OpenRQ.newEncoder(byteData,parameters);
-        int count=0;
+        System.out.println(String.format("RaptorQ: total %d bytes; %d source blocks; %d bytes per frame",
+                parameters.dataLength(),dataEncoder.numberOfSourceBlocks(),parameters.symbolSize()));
         for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
+            System.out.println(String.format("source block %d: contains %d source symbols",
+                    sourceBlockEncoder.sourceBlockNumber(),sourceBlockEncoder.numberOfSourceSymbols()));
             for(EncodingPacket encodingPacket:sourceBlockEncoder.sourcePacketsIterable()){
                 byte[] encode=encodingPacket.asArray();
                 buffer.add(encode);
-                System.out.println("packet length:"+encode.length);
             }
-            System.out.println(++count);
         }
         buffer.remove(buffer.size()-1);
-        buffer.add(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).repairPacket(dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1).numberOfSourceSymbols()).asArray());
+        SourceBlockEncoder lastSourceBlock=dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks()-1);
+        buffer.add(lastSourceBlock.repairPacket(lastSourceBlock.numberOfSourceSymbols()).asArray());
         int repairNum=buffer.size()/2;
         for(int i=1;i<=repairNum;i++){
             for(SourceBlockEncoder sourceBlockEncoder:dataEncoder.sourceBlockIterable()){
                 byte[] encode=sourceBlockEncoder.repairPacket(sourceBlockEncoder.numberOfSourceSymbols()+i).asArray();
                 buffer.add(encode);
-                System.out.println("packet length:"+encode.length);
             }
         }
-
-        LinkedList<int[]> list=new LinkedList<>();
-
-        //ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.DATA_MATRIX_FIELD_256);
+        System.out.println(String.format("generated %d symbols (the last 1 source symbol is dropped)",buffer.size()));
+        return buffer;
+    }
+    public List<BitSet> RSEncode(List<byte[]> byteBuffer){
+        final boolean record=false;
+        LinkedList<int[]> recordList;
+        String recordFilePath="test.txt";
+        if(record) {recordList = new LinkedList<>();}
+        List<BitSet> bitSets=new LinkedList<>();
         ReedSolomonEncoder encoder=new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
-        for(byte[] b:buffer){
-            int[] ordered=new int[contentLength*contentLength/ecLength];
+        for(byte[] b:byteBuffer){
+            int[] ordered=new int[contentBlock * contentBlock / ecSymbolBitLength];
             for(int i=0;i<b.length*8;i++){
                 if((b[i/8]&(1<<(i%8)))>0){
-                    ordered[i/ecLength]|=1<<(i%ecLength);
+                    ordered[i/ ecSymbolBitLength]|=1<<(i% ecSymbolBitLength);
                 }
             }
-            encoder.encode(ordered,ecNum);
-            list.add(ordered);
+            encoder.encode(ordered, ecSymbol);
+            if(record){recordList.add(ordered);}
             BitSet bitSet=new BitSet();
-            for(int i=0;i<contentLength*contentLength;i++){
-                if((ordered[i/ecLength]&(1<<(i%ecLength)))>0){
+            for(int i = 0; i< contentBlock * contentBlock; i++){
+                if((ordered[i/ ecSymbolBitLength]&(1<<(i% ecSymbolBitLength)))>0){
                     bitSet.set(i);
                 }
             }
             bitSets.add(bitSet);
         }
-
-        ObjectOutputStream outputStream;
-        try {
-            outputStream = new ObjectOutputStream(new FileOutputStream("test.txt"));
-            outputStream.writeObject(list);
-        }catch (IOException e){
-            e.printStackTrace();
+        if(record) {
+            try {
+                saveToFile(recordList,recordFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return bitSets;
     }
-    public void toImage(List<BitSet> bitSets,String path){
+    public void saveToFile(Object object,String filePath) throws IOException{
+        ObjectOutputStream outputStream;
+        outputStream = new ObjectOutputStream(new FileOutputStream(filePath));
+        outputStream.writeObject(object);
+    }
+    public void toImage(List<BitSet> bitSets,String directory){
         String imgType="png";
-        //int length=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
-        int imgWidth=((frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*2+contentLength)*blockLength;
-        int imgHeight=((frameWhiteLength+frameBlackLength)*2+contentLength)*blockLength;
-        int contentLeftOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
-        int contentTopOffset=(frameWhiteLength+frameBlackLength)*blockLength;
-        int contentRightOffset=contentLeftOffset+contentLength*blockLength;
-        int contentBottomOffset=contentTopOffset+contentLength*blockLength;
-        //int startOffset=(frameWhiteLength+frameBlackLength+frameVaryLength+frameVaryTwoLength)*blockLength;
-        //int stopOffset=startOffset+contentLength*blockLength;
-        File folder=new File(path);
+        int imgWidth=(frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock)*2+ contentBlock;
+        int imgHeight=(frameWhiteBlock + frameBlackBlock)*2+ contentBlock;
+        checkDirectory(directory);
+        int i=0;
+        for(BitSet bitSet:bitSets){
+            i++;
+            DrawImage img=new DrawImage(imgWidth,imgHeight,blockLength);
+            img.setDefaultColor("black");
+            addContent(img,bitSet);
+            addVary(img,i);
+            addFrame(img);
+            addHead(img,genHead(fileByteNum));
+            String destPath=String.format("%s%06d.%s",directory,i,imgType);
+            try {
+                img.save(imgType,destPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("save images done");
+    }
+    public void checkDirectory(String directory){
+        File folder=new File(directory);
         boolean b=false;
         if(!folder.exists()){
             b=folder.mkdirs();
@@ -127,94 +146,58 @@ public class FileToImg {
         }else{
             System.out.println("Directory already exists");
         }
-        int i=0;
-        for(BitSet bitSet:bitSets){
-            i++;
-            BufferedImage img = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_BYTE_BINARY);
-            Graphics2D g = img.createGraphics();
-            g.setBackground(Color.WHITE);
-            g.clearRect(0, 0, imgWidth, imgHeight);
-            g.setColor(Color.BLACK);
-            int index = 0;
-            for (int y = contentTopOffset; y < contentBottomOffset; y += blockLength) {
-                for (int x = contentLeftOffset; x < contentRightOffset; x += blockLength) {
-                    if(!bitSet.get(index)){
-                        g.fillRect(x, y, blockLength, blockLength);
-                    }
-                    index++;
+    }
+    public void addContent(DrawImage img,BitSet content){
+        final int contentLeftOffset=frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock;
+        final int contentTopOffset=frameWhiteBlock + frameBlackBlock;
+        final int contentRightOffset=contentLeftOffset+ contentBlock;
+        final int contentBottomOffset=contentTopOffset+ contentBlock;
+        int index = 0;
+        for (int y = contentTopOffset; y < contentBottomOffset; y++) {
+            for (int x = contentLeftOffset; x < contentRightOffset; x++) {
+                if(!content.get(index)){
+                    img.fillRect(x,y,1,1);
                 }
-            }
-            //System.out.println("index:"+index);
-            if(i%2==0){
-                g.fillRect(contentLeftOffset-(frameVaryLength+frameVaryTwoLength)*blockLength, contentTopOffset, blockLength, contentLength*blockLength);
-                g.fillRect(contentRightOffset,contentTopOffset,  blockLength, contentLength*blockLength);
-                //g.fillRect((frameWhiteLength+frameBlackLength)*blockLength,(frameWhiteLength+frameBlackLength)*blockLength,(contentLength+frameVaryLength)*blockLength,blockLength);
-            }else {
-                g.fillRect((frameWhiteLength+frameBlackLength+2*frameVaryLength+frameVaryTwoLength+contentLength)*blockLength,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
-                g.fillRect(contentLeftOffset-frameVaryTwoLength*blockLength, contentTopOffset, blockLength, contentLength*blockLength);
-                //g.fillRect((frameWhiteLength+frameBlackLength)*blockLength,stopOffset,(contentLength+frameVaryLength)*blockLength,blockLength);
-            }
-            //g.fillRect(stopOffset,(frameWhiteLength + frameBlackLength) * blockLength,  blockLength, contentLength*blockLength);
-            addFrame(g);
-            //addGrayCode(g,CRC8.toString(i)+imgAmountString);
-            addGrayCode(g,genHead(fileByteNum));
-            g.dispose();
-            img.flush();
-            String destPath=String.format("%s%06d.%s",path,i,imgType);
-            File destFile = new File(destPath);
-            try {
-                ImageIO.write(img, imgType, destFile);
-            } catch (IOException e) {
-                e.printStackTrace();
+                index++;
             }
         }
     }
-
-    public void addFrame(Graphics2D g){
-        int frameLeftOffset=frameWhiteLength*blockLength;
+    public void addVary(DrawImage img,int index){
+        final int leftVaryLeftOffset=frameWhiteBlock + frameBlackBlock;
+        final int rightVaryLeftOffset=leftVaryLeftOffset+frameVaryFirstBlock + frameVarySecondBlock+contentBlock;
+        final int varyTopOffset=frameWhiteBlock + frameBlackBlock;
+        final int varyBottomOffset=varyTopOffset+contentBlock;
+        if(index%2==0){
+            img.fillRect(leftVaryLeftOffset,varyTopOffset,frameVaryFirstBlock,contentBlock);
+            img.fillRect(rightVaryLeftOffset,varyTopOffset,frameVaryFirstBlock,contentBlock);
+        }else {
+            img.fillRect(leftVaryLeftOffset + frameVaryFirstBlock,varyTopOffset,frameVarySecondBlock,contentBlock);
+            img.fillRect(rightVaryLeftOffset + frameVaryFirstBlock,varyTopOffset,frameVarySecondBlock,contentBlock);
+        }
+    }
+    public void addFrame(DrawImage img){
+        int frameLeftOffset= frameWhiteBlock;
         int frameTopOffset=frameLeftOffset;
-        int frameRightOffset=frameLeftOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
-        int frameBottomOffset=frameTopOffset+(2*frameBlackLength+contentLength)*blockLength;
-        //int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
-        //int stopOffset=startOffset+(contentLength+2*(frameVaryLength+frameVaryTwoLength))*blockLength;
-        int vBlockLength=frameVaryLength*blockLength;
-        for(int i=frameTopOffset;i<frameBottomOffset;i+=vBlockLength*2){
-            //g.fillRect(i,startOffset,vBlockLength,vBlockLength);
-            //g.fillRect(startOffset,i,vBlockLength,vBlockLength);
-            //g.fillRect(stopOffset,i,vBlockLength,vBlockLength);
-            g.fillRect(frameLeftOffset,i,vBlockLength,vBlockLength);
-            //g.fillRect(i,stopOffset,vBlockLength,vBlockLength);
+        int frameRightOffset=frameLeftOffset+2*(frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock)+ contentBlock;
+        int frameBottomOffset=frameTopOffset+2* frameBlackBlock + contentBlock;
+        for(int i=frameTopOffset;i<frameBottomOffset;i+=2*frameBlackBlock){
+            img.fillRect(frameLeftOffset,i,frameBlackBlock,frameBlackBlock);
         }
-        //startOffset=frameWhiteLength*blockLength;
-        //stopOffset=startOffset+(2*(frameBlackLength+frameVaryLength+frameVaryTwoLength)+contentLength)*blockLength;
-        int bBlockLength=frameBlackLength*blockLength;
-        //g.fillRect(startOffset,startOffset,bBlockLength,stopOffset-startOffset);
-        //g.fillRect(startOffset,startOffset,stopOffset-startOffset,bBlockLength);
-        g.fillRect(frameLeftOffset,frameBottomOffset-bBlockLength,frameRightOffset-frameLeftOffset,bBlockLength);
-        g.fillRect(frameRightOffset-bBlockLength,frameTopOffset,bBlockLength,frameBottomOffset-frameTopOffset);
+        img.fillRect(frameLeftOffset,frameBottomOffset-frameBlackBlock,frameRightOffset-frameLeftOffset,frameBlackBlock);
+        img.fillRect(frameRightOffset-frameBlackBlock,frameTopOffset,frameBlackBlock,frameBottomOffset-frameTopOffset);
     }
-    public void addGrayCode(Graphics2D g,String grayCode) {
-        //System.out.println(grayCode);
-        //int startOffset=(frameWhiteLength+frameBlackLength)*blockLength;
-        int headTopOffset = frameWhiteLength * blockLength;
+    public void addHead(DrawImage img, String head) {
+        int headTopOffset = frameWhiteBlock;
         int headLeftOffset = headTopOffset;
-        int headRightOffset = headLeftOffset + (2 * (frameBlackLength + frameVaryLength + frameVaryTwoLength) + contentLength) * blockLength;
-        //int startOffset=frameWhiteLength*blockLength;
-        //int stopOffset=startOffset+(contentLength+frameVaryLength+frameVaryTwoLength*2+frameBlackLength)*blockLength;
-        int vBlockLength = frameBlackLength * blockLength;
+        int headRightOffset = headLeftOffset + 2 * (frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock) + contentBlock;
         int i;
-        for (i = 0; i < grayCode.length(); i++) {
-            if (grayCode.charAt(i) == '0') {
-                //g.fillRect(startOffset+(frameVaryLength+1)*blockLength+i*vBlockLength,startOffset,vBlockLength,vBlockLength);
-                g.fillRect(headLeftOffset + i * vBlockLength, headTopOffset, vBlockLength, vBlockLength);
+        for (i = 0; i < head.length(); i++) {
+            if (head.charAt(i) == '0') {
+                img.fillRect(headLeftOffset + i * frameBlackBlock, headTopOffset, frameBlackBlock, frameBlackBlock);
             }
         }
-
-        i = headLeftOffset + i * vBlockLength;
-        for (; i < headRightOffset; i += vBlockLength) {
-            g.fillRect(i, headTopOffset, vBlockLength, vBlockLength);
-        }
-
+        i=headLeftOffset + i * frameBlackBlock;
+        img.fillRect(i,headTopOffset,headRightOffset-i,frameBlackBlock);
     }
     public String genHead(int x){
         String pad32=String.format("%032d",0);

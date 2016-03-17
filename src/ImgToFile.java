@@ -51,16 +51,16 @@ public class ImgToFile extends FileToImg {
         }
         int[][] biMatrix=Binarizer.binarizer(img);
         int[] border= FindBoarder.findBoarder(biMatrix);
-        int imgWidth=(frameBlackLength+frameVaryLength)*2+contentLength;
+        int imgWidth=(frameBlackBlock + frameVaryFirstBlock)*2+ contentBlock;
         GridSampler gs=new GridSampler();
         int[][] matrixStream=gs.sampleGrid(biMatrix,imgWidth,imgWidth,0,0,imgWidth,0,imgWidth,imgWidth,0,imgWidth,border[0],border[1],border[2],border[3],border[4],border[5],border[6],border[7]);
         return matrixToBinaryStream(matrixStream);
     }
     public int[] matrixToBinaryStream(int[][] biMatrix){
-        int startOffset=frameBlackLength+frameVaryLength;
-        int stopOffset=startOffset+contentLength;
+        int startOffset= frameBlackBlock + frameVaryFirstBlock;
+        int stopOffset=startOffset+ contentBlock;
         System.out.println(startOffset+" "+stopOffset);
-        int[] result=new int[contentLength*contentLength];
+        int[] result=new int[contentBlock * contentBlock];
         int index=0;
         for(int j=startOffset;j<stopOffset;j++){
             for(int i=startOffset;i<stopOffset;i++){
