@@ -42,6 +42,18 @@ public class DrawImage {
     public void fillRect(int x,int y,int width,int height){
         g.fillRect(x*blockLength,y*blockLength,width*blockLength,height*blockLength);
     }
+    public void fillContentRect(boolean isTrue,int x,int y,int width,int height){
+        x*=blockLength;
+        width*=blockLength;
+        height=(int)Math.round(height*0.6*blockLength);
+        if(isTrue){
+            y*=blockLength;
+        }
+        else{
+            y=(int)Math.round(y*blockLength+0.4*blockLength);
+        }
+        g.fillRect(x,y,width,height);
+    }
     public void save(String imgFormat,String filePath) throws IOException{
         g.dispose();
         img.flush();

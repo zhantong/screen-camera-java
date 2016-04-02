@@ -28,14 +28,14 @@ public class FileToImg {
     final static int frameBlackBlock = 1;//黑色边界,最外围
     final static int frameVaryFirstBlock = 1;//左边第一个和右边第一个黑/白条
     final static int frameVarySecondBlock = 1;//左边第二个和右边第二个黑/白条
-    final static int contentBlock = 80;//内容
-    final static int blockLength = 6;//小方格边长对应像素点
+    final static int contentBlock = 40;//内容
+    final static int blockLength = 20;//小方格边长对应像素点
     final static int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
     final static int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
     static int fileByteNum;
 
     public static void main(String[] args) {
-        String inputFilePath = "/Users/zhantong/Desktop/test.txt";
+        String inputFilePath = "/Users/zhantong/Desktop/test1.txt";
         String outputImageDirectory = "/Users/zhantong/Desktop/test5/";
         FileToImg f = new FileToImg();
         f.toImg(inputFilePath, outputImageDirectory);
@@ -233,9 +233,7 @@ public class FileToImg {
         int index = 0;
         for (int y = contentTopOffset; y < contentBottomOffset; y++) {
             for (int x = contentLeftOffset; x < contentRightOffset; x++) {
-                if (!content.get(index)) {
-                    img.fillRect(x, y, 1, 1);
-                }
+                img.fillContentRect(content.get(index),x, y, 1, 1);
                 index++;
             }
         }
