@@ -23,6 +23,10 @@ public class DrawImage {
         g.setBackground(Color.WHITE);
         g.clearRect(0,0,imgWidth,imgHeight);
     }
+    public void clearBackground(Color color,int x,int y,int width,int height){
+        g.setBackground(color);
+        g.clearRect(x*blockLength,y*blockLength,width*blockLength,height*blockLength);
+    }
     public void fillWhiteRect(int x,int y,int width,int height){
         g.setColor(Color.WHITE);
         fillRect(x,y,width,height);
@@ -31,26 +35,33 @@ public class DrawImage {
         g.setColor(Color.BLACK);
         fillRect(x,y,width,height);
     }
-    public void setDefaultColor(String color){
-        if(color.equals("black")){
-            g.setColor(Color.BLACK);
-        }
-        else{
-            g.setColor(Color.WHITE);
-        }
+    public void setDefaultColor(Color color){
+        g.setColor(color);
     }
     public void fillRect(int x,int y,int width,int height){
         g.fillRect(x*blockLength,y*blockLength,width*blockLength,height*blockLength);
     }
-    public void fillContentRect(boolean isTrue,int x,int y,int width,int height){
+    public void fillContentRect(int con,int x,int y,int width,int height){
+        int offset=(int)Math.round(0.2*blockLength);
         x*=blockLength;
-        width*=blockLength;
-        height=(int)Math.round(height*0.6*blockLength);
-        if(isTrue){
-            y*=blockLength;
-        }
-        else{
-            y=(int)Math.round(y*blockLength+0.4*blockLength);
+        y*=blockLength;
+        width=(int)Math.round(width*0.6*blockLength);
+        height=width;
+        switch (con){
+            case 0:
+                x+=offset;
+                break;
+            case 1:
+                x+=offset;
+                y+=2*offset;
+                break;
+            case 2:
+                y+=offset;
+                break;
+            case 3:
+                x+=2*offset;
+                y+=offset;
+                break;
         }
         g.fillRect(x,y,width,height);
     }

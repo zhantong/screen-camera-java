@@ -6,6 +6,7 @@ import net.fec.openrq.encoder.DataEncoder;
 import net.fec.openrq.encoder.SourceBlockEncoder;
 import net.fec.openrq.parameters.FECParameters;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,13 +31,14 @@ public class FileToImg {
     final static int frameVarySecondBlock = 1;//左边第二个和右边第二个黑/白条
     final static int contentBlock = 40;//内容
     final static int blockLength = 20;//小方格边长对应像素点
-    final static int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
+    final static int ecSymbol = 40;//RS纠错中用于纠错的symbol个数
     final static int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
+    final static int bitsPerBlock=2;
     static int fileByteNum;
 
     public static void main(String[] args) {
         String inputFilePath = "/Users/zhantong/Desktop/test1.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test5/";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test3/";
         FileToImg f = new FileToImg();
         f.toImg(inputFilePath, outputImageDirectory);
     }
@@ -62,7 +64,7 @@ public class FileToImg {
      */
     private List<byte[]> readFile(String filePath) {
         //一个二维码实际存储的文件信息,最后的8byte为RaptorQ头部
-        final int realByteLength = contentBlock * contentBlock / 8 - ecSymbol * ecSymbolBitLength / 8 - 8;
+        final int realByteLength = bitsPerBlock*contentBlock * contentBlock / 8 - ecSymbol * ecSymbolBitLength / 8 - 8;
         List<byte[]> buffer = new LinkedList<>();
         Path path = Paths.get(filePath);
         byte[] byteData = null;
@@ -117,7 +119,7 @@ public class FileToImg {
         }
         List<BitSet> bitSets = new LinkedList<>();
         for (byte[] b : byteBuffer) {
-            int[] ordered = new int[contentBlock * contentBlock / ecSymbolBitLength];
+            int[] ordered = new int[bitsPerBlock*contentBlock * contentBlock / ecSymbolBitLength];
             for (int i = 0; i < b.length * 8; i++) {
                 if ((b[i / 8] & (1 << (i % 8))) > 0) {
                     ordered[i / ecSymbolBitLength] |= 1 << (i % ecSymbolBitLength);
@@ -186,8 +188,8 @@ public class FileToImg {
         for (BitSet bitSet : bitSets) {
             i++;
             DrawImage img = new DrawImage(imgWidth, imgHeight, blockLength);
-            img.setDefaultColor("black");
             addContent(img, bitSet);
+            img.setDefaultColor(Color.BLACK);
             addVary(img, i);
             addFrame(img);
             addHead(img, head);
@@ -230,11 +232,17 @@ public class FileToImg {
         int contentTopOffset = frameWhiteBlock + frameBlackBlock;
         int contentRightOffset = contentLeftOffset + contentBlock;
         int contentBottomOffset = contentTopOffset + contentBlock;
+        img.clearBackground(Color.black,contentLeftOffset,contentTopOffset,contentBlock,contentBlock);
+        img.setDefaultColor(Color.WHITE);
         int index = 0;
         for (int y = contentTopOffset; y < contentBottomOffset; y++) {
             for (int x = contentLeftOffset; x < contentRightOffset; x++) {
-                img.fillContentRect(content.get(index),x, y, 1, 1);
-                index++;
+                int con=0;
+                for(int i=0;i<bitsPerBlock;i++){
+                    con=(con<<1)+(content.get(index+i)?1:0);
+                }
+                img.fillContentRect(con,x, y, 1, 1);
+                index+=bitsPerBlock;
             }
         }
     }
