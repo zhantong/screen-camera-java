@@ -38,7 +38,7 @@ public class FileToImg {
 
     public static void main(String[] args) {
         String inputFilePath = "/Users/zhantong/Desktop/test1.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test3/";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test6/";
         FileToImg f = new FileToImg();
         f.toImg(inputFilePath, outputImageDirectory);
     }
@@ -110,13 +110,9 @@ public class FileToImg {
      * @return RS编码后转换为BitSet组成的list
      */
     private List<BitSet> RSEncode(List<byte[]> byteBuffer) {
-        final boolean record = false;//保存RS编码后的内容到文件
-        String recordFilePath = "test.txt";
+        final boolean record = true;//保存RS编码后的内容到文件
+        String recordFilePath = "bitsets.txt";
         ReedSolomonEncoder encoder = new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
-        LinkedList<int[]> recordList;
-        if (record) {
-            recordList = new LinkedList<>();
-        }
         List<BitSet> bitSets = new LinkedList<>();
         for (byte[] b : byteBuffer) {
             int[] ordered = new int[bitsPerBlock*contentBlock * contentBlock / ecSymbolBitLength];
@@ -126,14 +122,11 @@ public class FileToImg {
                 }
             }
             encoder.encode(ordered, ecSymbol);
-            if (record) {
-                recordList.add(ordered);
-            }
             bitSets.add(toBitSet(ordered, ecSymbolBitLength));
         }
         if (record) {
             try {
-                saveToFile(recordList, recordFilePath);
+                saveToFile(bitSets, recordFilePath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -258,12 +251,18 @@ public class FileToImg {
         int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryFirstBlock + frameVarySecondBlock + contentBlock;
         int varyTopOffset = frameWhiteBlock + frameBlackBlock;
         int varyBottomOffset = varyTopOffset + contentBlock;
+        img.clearBackground(Color.black,leftVaryLeftOffset + frameVaryFirstBlock,varyTopOffset,frameVarySecondBlock,contentBlock);
         if (index % 2 == 0) {
             img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
             img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
         } else {
-            img.fillRect(leftVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
+            //img.fillRect(leftVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
             img.fillRect(rightVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
+        }
+        for(int i=varyTopOffset;i<varyBottomOffset;i+=frameVarySecondBlock){
+            img.setDefaultColor(Color.WHITE);
+            img.fillContentRect(index % 2,leftVaryLeftOffset + frameVaryFirstBlock,i,1,1);
+            img.setDefaultColor(Color.BLACK);
         }
     }
 
