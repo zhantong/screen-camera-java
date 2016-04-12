@@ -32,11 +32,12 @@ public class FileToImg {
     final static int blockLength = 6;//小方格边长对应像素点
     final static int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
     final static int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
+    final static int RaptorQSourceBlockNum=1;
     static int fileByteNum;
 
     public static void main(String[] args) {
-        String inputFilePath = "/Users/zhantong/Desktop/test.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test5/";
+        String inputFilePath = "/Users/zhantong/Desktop/testsanguo.txt";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test10/";
         FileToImg f = new FileToImg();
         f.toImg(inputFilePath, outputImageDirectory);
     }
@@ -73,7 +74,7 @@ public class FileToImg {
             e.printStackTrace();
         }
         System.out.println(String.format("file is %d bytes", fileByteNum));
-        FECParameters parameters = FECParameters.newParameters(fileByteNum, realByteLength, 1);//只有1个source block
+        FECParameters parameters = FECParameters.newParameters(fileByteNum, realByteLength, RaptorQSourceBlockNum);//只有1个source block
         assert byteData != null;
         DataEncoder dataEncoder = OpenRQ.newEncoder(byteData, parameters);
         System.out.println(String.format("RaptorQ: total %d bytes; %d source blocks; %d bytes per frame",
