@@ -25,23 +25,16 @@ import java.util.List;
  * 二维码除BitSet提供的内容外,还有另外的辅助信息
  */
 public class FileToImg {
-    final static int frameWhiteBlock = 8;//边界留白
-    final static int frameBlackBlock = 1;//黑色边界,最外围
-    final static int frameVaryFirstBlock = 1;//左边第一个和右边第一个黑/白条
-    final static int frameVarySecondBlock = 1;//左边第二个和右边第二个黑/白条
-    final static int contentBlock = 80;//内容
-    final static int blockLength = 6;//小方格边长对应像素点
-    final static int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
-    final static int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
-    final static int bitsPerBlock=1;
-    static int fileByteNum;
-
-    public static void main(String[] args) {
-        String inputFilePath = "/Users/zhantong/Desktop/testsanguo.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test10/";
-        FileToImg f = new FileToImg();
-        f.toImg(inputFilePath, outputImageDirectory);
-    }
+    protected int frameWhiteBlock = 8;//边界留白
+    protected int frameBlackBlock = 1;//黑色边界,最外围
+    protected int frameVaryFirstBlock = 1;//左边第一个和右边第一个黑/白条
+    protected int frameVarySecondBlock = 1;//左边第二个和右边第二个黑/白条
+    protected int contentBlock = 80;//内容
+    protected int blockLength = 6;//小方格边长对应像素点
+    protected int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
+    protected int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
+    protected int bitsPerBlock=1;
+    protected int fileByteNum;
 
     /**
      * 由输入文件生成多个二维码到指定文件夹
@@ -220,7 +213,7 @@ public class FileToImg {
      * @param img     二维码
      * @param content 内容
      */
-    private void addContent(DrawImage img, BitSet content) {
+    protected void addContent(DrawImage img, BitSet content) {
         int contentLeftOffset = frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock;
         int contentTopOffset = frameWhiteBlock + frameBlackBlock;
         int contentRightOffset = contentLeftOffset + contentBlock;
@@ -242,7 +235,8 @@ public class FileToImg {
      * @param img   二维码
      * @param index 二维码编号
      */
-    private void addVary(DrawImage img, int index) {
+    protected void addVary(DrawImage img, int index) {
+        img.setDefaultColor(Color.BLACK);
         int leftVaryLeftOffset = frameWhiteBlock + frameBlackBlock;
         int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryFirstBlock + frameVarySecondBlock + contentBlock;
         int varyTopOffset = frameWhiteBlock + frameBlackBlock;
@@ -262,6 +256,7 @@ public class FileToImg {
      * @param img 二维码
      */
     private void addFrame(DrawImage img) {
+        img.setDefaultColor(Color.BLACK);
         int frameLeftOffset = frameWhiteBlock;
         int frameTopOffset = frameLeftOffset;
         int frameRightOffset = frameLeftOffset + 2 * (frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock) + contentBlock;
@@ -280,6 +275,7 @@ public class FileToImg {
      * @param head 头信息
      */
     private void addHead(DrawImage img, String head) {
+        img.setDefaultColor(Color.BLACK);
         int headTopOffset = frameWhiteBlock;
         int headLeftOffset = headTopOffset;
         int headRightOffset = headLeftOffset + 2 * (frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock) + contentBlock;

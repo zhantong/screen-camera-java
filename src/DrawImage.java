@@ -42,6 +42,9 @@ public class DrawImage {
     public void fillRect(int x,int y,int width,int height){
         g.fillRect(x*blockLength,y*blockLength,width*blockLength,height*blockLength);
     }
+    public void fillRect(int x,int y,float offsetX,float offsetY,float width,float height){
+        g.fillRect(Math.round((x+offsetX)*blockLength),Math.round((y+offsetY)*blockLength),Math.round(width*blockLength),Math.round(height*blockLength));
+    }
     public void save(String imgFormat,String filePath) throws IOException{
         g.dispose();
         img.flush();
