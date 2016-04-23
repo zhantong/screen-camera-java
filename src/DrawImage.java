@@ -23,6 +23,11 @@ public class DrawImage {
         g.setBackground(Color.WHITE);
         g.clearRect(0,0,imgWidth,imgHeight);
     }
+    public void clearBackground(Color color,int x,int y,int width,int height){
+        g.setBackground(color);
+        g.clearRect(x*blockLength,y*blockLength,width*blockLength,height*blockLength);
+    }
+
     public void fillWhiteRect(int x,int y,int width,int height){
         g.setColor(Color.WHITE);
         fillRect(x,y,width,height);
@@ -31,13 +36,8 @@ public class DrawImage {
         g.setColor(Color.BLACK);
         fillRect(x,y,width,height);
     }
-    public void setDefaultColor(String color){
-        if(color.equals("black")){
-            g.setColor(Color.BLACK);
-        }
-        else{
-            g.setColor(Color.WHITE);
-        }
+    public void setDefaultColor(Color color){
+        g.setColor(color);
     }
     public void fillRect(int x,int y,int width,int height){
         g.fillRect(x*blockLength,y*blockLength,width*blockLength,height*blockLength);

@@ -6,6 +6,7 @@ import net.fec.openrq.encoder.DataEncoder;
 import net.fec.openrq.encoder.SourceBlockEncoder;
 import net.fec.openrq.parameters.FECParameters;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class FileToImg {
     final static int blockLength = 6;//小方格边长对应像素点
     final static int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
     final static int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
-    final static int RaptorQSourceBlockNum=1;
+    final static int bitsPerBlock=1;
     static int fileByteNum;
 
     public static void main(String[] args) {
@@ -63,7 +64,7 @@ public class FileToImg {
      */
     private List<byte[]> readFile(String filePath) {
         //一个二维码实际存储的文件信息,最后的8byte为RaptorQ头部
-        final int realByteLength = contentBlock * contentBlock / 8 - ecSymbol * ecSymbolBitLength / 8 - 8;
+        final int realByteLength = bitsPerBlock*contentBlock * contentBlock / 8 - ecSymbol * ecSymbolBitLength / 8 - 8;
         List<byte[]> buffer = new LinkedList<>();
         Path path = Paths.get(filePath);
         byte[] byteData = null;
@@ -74,7 +75,7 @@ public class FileToImg {
             e.printStackTrace();
         }
         System.out.println(String.format("file is %d bytes", fileByteNum));
-        FECParameters parameters = FECParameters.newParameters(fileByteNum, realByteLength, RaptorQSourceBlockNum);//只有1个source block
+        FECParameters parameters = FECParameters.newParameters(fileByteNum, realByteLength, 1);//只有1个source block
         assert byteData != null;
         DataEncoder dataEncoder = OpenRQ.newEncoder(byteData, parameters);
         System.out.println(String.format("RaptorQ: total %d bytes; %d source blocks; %d bytes per frame",
@@ -110,29 +111,22 @@ public class FileToImg {
      */
     private List<BitSet> RSEncode(List<byte[]> byteBuffer) {
         final boolean record = false;//保存RS编码后的内容到文件
-        String recordFilePath = "test.txt";
+        String recordFilePath = "bitset.txt";
         ReedSolomonEncoder encoder = new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
-        LinkedList<int[]> recordList;
-        if (record) {
-            recordList = new LinkedList<>();
-        }
         List<BitSet> bitSets = new LinkedList<>();
         for (byte[] b : byteBuffer) {
-            int[] ordered = new int[contentBlock * contentBlock / ecSymbolBitLength];
+            int[] ordered = new int[bitsPerBlock*contentBlock * contentBlock / ecSymbolBitLength];
             for (int i = 0; i < b.length * 8; i++) {
                 if ((b[i / 8] & (1 << (i % 8))) > 0) {
                     ordered[i / ecSymbolBitLength] |= 1 << (i % ecSymbolBitLength);
                 }
             }
             encoder.encode(ordered, ecSymbol);
-            if (record) {
-                recordList.add(ordered);
-            }
             bitSets.add(toBitSet(ordered, ecSymbolBitLength));
         }
         if (record) {
             try {
-                saveToFile(recordList, recordFilePath);
+                saveToFile(bitSets, recordFilePath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -187,7 +181,7 @@ public class FileToImg {
         for (BitSet bitSet : bitSets) {
             i++;
             DrawImage img = new DrawImage(imgWidth, imgHeight, blockLength);
-            img.setDefaultColor("black");
+            img.setDefaultColor(Color.BLACK);
             addContent(img, bitSet);
             addVary(img, i);
             addFrame(img);
