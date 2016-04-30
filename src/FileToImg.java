@@ -134,12 +134,15 @@ public class FileToImg {
      * @param bitNum 用到的int的低bitNum位
      * @return 转换得到的BitSet
      */
-    private BitSet toBitSet(int data[], int bitNum) {
-        int bitLength = data.length * bitNum;
-        BitSet bitSet = new BitSet();
-        for (int i = 0; i < bitLength; i++) {
-            if ((data[i / bitNum] & (1 << (i % bitNum))) > 0) {
-                bitSet.set(i);
+    private static BitSet toBitSet(int data[],int bitNum){
+        int index=0;
+        BitSet bitSet=new BitSet();
+        for(int current:data){
+            for(int i=0;i<bitNum;i++){
+                if((current&(1<<i))>0){
+                    bitSet.set(index);
+                }
+                index++;
             }
         }
         return bitSet;

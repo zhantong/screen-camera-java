@@ -6,8 +6,8 @@ import java.util.BitSet;
  */
 public class FileToImgZoom extends FileToImg {
     public static void main(String[] args) {
-        String inputFilePath = "/Users/zhantong/Desktop/test1.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test11/";
+        String inputFilePath = "/Users/zhantong/Desktop/test3.txt";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test5/";
         FileToImg f = new FileToImgZoom();
         f.toImg(inputFilePath, outputImageDirectory);
     }
