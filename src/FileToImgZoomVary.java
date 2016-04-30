@@ -7,7 +7,7 @@ import java.util.BitSet;
 public class FileToImgZoomVary extends FileToImg {
     public static void main(String[] args) {
         String inputFilePath = "/Users/zhantong/Desktop/test3.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test4/";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test6/";
         FileToImg f = new FileToImgZoomVary();
         f.toImg(inputFilePath, outputImageDirectory);
     }
@@ -64,6 +64,38 @@ public class FileToImgZoomVary extends FileToImg {
                     img.fillRect(x,y,offsetX,offsetY,width,height);
                 }
                 index+=bitsPerBlock;
+            }
+        }
+    }
+    protected void addVary(DrawImage img, int index) {
+        img.setDefaultColor(Color.BLACK);
+        int leftVaryLeftOffset = frameWhiteBlock + frameBlackBlock;
+        int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryFirstBlock + frameVarySecondBlock + contentBlock;
+        int varyTopOffset = frameWhiteBlock + frameBlackBlock;
+        int varyBottomOffset = varyTopOffset + contentBlock;
+        if (index % 2 == 0) {
+            img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
+            img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
+        } else {
+            img.fillRect(leftVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
+            img.fillRect(rightVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
+        }
+        int contentTopOffset = frameWhiteBlock + frameBlackBlock;
+        int contentBottomOffset = contentTopOffset + contentBlock;
+        int x=leftVaryLeftOffset + frameVaryFirstBlock;
+        final float width=0.6f;
+        final float height=0.6f;
+        if(index%2==0) {
+            for (int y = contentTopOffset; y < contentBottomOffset; y++) {
+                img.clearBackground(Color.BLACK,x,y,1,1);
+                img.setDefaultColor(Color.WHITE);
+                img.fillRect(x,y,0,0.2f,width,height);
+            }
+        }else{
+            for (int y = contentTopOffset; y < contentBottomOffset; y++) {
+                img.clearBackground(Color.BLACK,x,y,1,1);
+                img.setDefaultColor(Color.WHITE);
+                img.fillRect(x,y,0.4f,0.2f,width,height);
             }
         }
     }
