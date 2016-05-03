@@ -7,22 +7,22 @@ import java.util.BitSet;
 public class FileToImgZoomVary extends FileToImg {
     public static void main(String[] args) {
         String inputFilePath = "/Users/zhantong/Desktop/test3.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test6/";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test7/";
         FileToImg f = new FileToImgZoomVary();
         f.toImg(inputFilePath, outputImageDirectory);
     }
     public FileToImgZoomVary(){
         bitsPerBlock=2;
-        contentBlock = 40;
+        contentLength = 40;
         blockLength = 20;
-        ecSymbol = 40;
+        ecNum = 40;
     }
     protected void addContent(DrawImage img, BitSet content) {
-        int contentLeftOffset = frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock;
-        int contentTopOffset = frameWhiteBlock + frameBlackBlock;
-        int contentRightOffset = contentLeftOffset + contentBlock;
-        int contentBottomOffset = contentTopOffset + contentBlock;
-        img.clearBackground(Color.BLACK,contentLeftOffset,contentTopOffset,contentBlock,contentBlock);
+        int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
+        int contentTopOffset = frameWhiteBlock + frameBlackLength;
+        int contentRightOffset = contentLeftOffset + contentLength;
+        int contentBottomOffset = contentTopOffset + contentLength;
+        img.clearBackground(Color.BLACK,contentLeftOffset,contentTopOffset, contentLength, contentLength);
         img.setDefaultColor(Color.WHITE);
         int index = 0;
         float offsetX=0;
@@ -69,20 +69,20 @@ public class FileToImgZoomVary extends FileToImg {
     }
     protected void addVary(DrawImage img, int index) {
         img.setDefaultColor(Color.BLACK);
-        int leftVaryLeftOffset = frameWhiteBlock + frameBlackBlock;
-        int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryFirstBlock + frameVarySecondBlock + contentBlock;
-        int varyTopOffset = frameWhiteBlock + frameBlackBlock;
-        int varyBottomOffset = varyTopOffset + contentBlock;
+        int leftVaryLeftOffset = frameWhiteBlock + frameBlackLength;
+        int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryLength + frameVaryTwoLength + contentLength;
+        int varyTopOffset = frameWhiteBlock + frameBlackLength;
+        int varyBottomOffset = varyTopOffset + contentLength;
         if (index % 2 == 0) {
-            img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
-            img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
+            img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryLength, contentLength);
+            img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryLength, contentLength);
         } else {
-            img.fillRect(leftVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
-            img.fillRect(rightVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
+            img.fillRect(leftVaryLeftOffset + frameVaryLength, varyTopOffset, frameVaryTwoLength, contentLength);
+            img.fillRect(rightVaryLeftOffset + frameVaryLength, varyTopOffset, frameVaryTwoLength, contentLength);
         }
-        int contentTopOffset = frameWhiteBlock + frameBlackBlock;
-        int contentBottomOffset = contentTopOffset + contentBlock;
-        int x=leftVaryLeftOffset + frameVaryFirstBlock;
+        int contentTopOffset = frameWhiteBlock + frameBlackLength;
+        int contentBottomOffset = contentTopOffset + contentLength;
+        int x=leftVaryLeftOffset + frameVaryLength;
         final float width=0.6f;
         final float height=0.6f;
         if(index%2==0) {

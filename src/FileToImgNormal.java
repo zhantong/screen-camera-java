@@ -4,15 +4,15 @@
  */
 public class FileToImgNormal extends FileToImg {
     public static void main(String[] args) {
-        String inputFilePath = "/Users/zhantong/Desktop/testsanguo.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test10/";
+        String inputFilePath = "/Users/zhantong/Desktop/test.txt";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test2/";
         FileToImg f = new FileToImgNormal();
         f.toImg(inputFilePath, outputImageDirectory);
     }
     public FileToImgNormal(){
         bitsPerBlock=1;
-        contentBlock = 80;
+        contentLength = 80;
         blockLength = 6;
-        ecSymbol = 80;
+        ecNum = 80;
     }
 }

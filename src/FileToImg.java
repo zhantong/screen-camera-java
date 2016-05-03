@@ -26,13 +26,13 @@ import java.util.List;
  */
 public class FileToImg {
     protected int frameWhiteBlock = 8;//边界留白
-    protected int frameBlackBlock = 1;//黑色边界,最外围
-    protected int frameVaryFirstBlock = 1;//左边第一个和右边第一个黑/白条
-    protected int frameVarySecondBlock = 1;//左边第二个和右边第二个黑/白条
-    protected int contentBlock = 80;//内容
+    protected int frameBlackLength = 1;//黑色边界,最外围
+    protected int frameVaryLength = 1;//左边第一个和右边第一个黑/白条
+    protected int frameVaryTwoLength = 1;//左边第二个和右边第二个黑/白条
+    protected int contentLength = 80;//内容
     protected int blockLength = 6;//小方格边长对应像素点
-    protected int ecSymbol = 80;//RS纠错中用于纠错的symbol个数
-    protected int ecSymbolBitLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
+    protected int ecNum = 80;//RS纠错中用于纠错的symbol个数
+    protected int ecLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
     protected int bitsPerBlock=1;
     protected int fileByteNum;
 
@@ -57,7 +57,7 @@ public class FileToImg {
      */
     private List<byte[]> readFile(String filePath) {
         //一个二维码实际存储的文件信息,最后的8byte为RaptorQ头部
-        final int realByteLength = bitsPerBlock*contentBlock * contentBlock / 8 - ecSymbol * ecSymbolBitLength / 8 - 8;
+        final int realByteLength = bitsPerBlock* contentLength * contentLength / 8 - ecNum * ecLength / 8 - 8;
         List<byte[]> buffer = new LinkedList<>();
         Path path = Paths.get(filePath);
         byte[] byteData = null;
@@ -103,26 +103,17 @@ public class FileToImg {
      * @return RS编码后转换为BitSet组成的list
      */
     private List<BitSet> RSEncode(List<byte[]> byteBuffer) {
-        final boolean record = false;//保存RS编码后的内容到文件
-        String recordFilePath = "bitset.txt";
         ReedSolomonEncoder encoder = new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
         List<BitSet> bitSets = new LinkedList<>();
         for (byte[] b : byteBuffer) {
-            int[] ordered = new int[bitsPerBlock*contentBlock * contentBlock / ecSymbolBitLength];
+            int[] ordered = new int[bitsPerBlock* contentLength * contentLength / ecLength];
             for (int i = 0; i < b.length * 8; i++) {
                 if ((b[i / 8] & (1 << (i % 8))) > 0) {
-                    ordered[i / ecSymbolBitLength] |= 1 << (i % ecSymbolBitLength);
+                    ordered[i / ecLength] |= 1 << (i % ecLength);
                 }
             }
-            encoder.encode(ordered, ecSymbol);
-            bitSets.add(toBitSet(ordered, ecSymbolBitLength));
-        }
-        if (record) {
-            try {
-                saveToFile(bitSets, recordFilePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            encoder.encode(ordered, ecNum);
+            bitSets.add(toBitSet(ordered, ecLength));
         }
         return bitSets;
     }
@@ -149,19 +140,6 @@ public class FileToImg {
     }
 
     /**
-     * 将任意内容保存到文件,这里只供保存RS编码内容用
-     *
-     * @param object   需要保存的内容,任意格式
-     * @param filePath 生成文件路径
-     * @throws IOException
-     */
-    private void saveToFile(Object object, String filePath) throws IOException {
-        ObjectOutputStream outputStream;
-        outputStream = new ObjectOutputStream(new FileOutputStream(filePath));
-        outputStream.writeObject(object);
-    }
-
-    /**
      * 由BitSet生成二维码图片,BitSet只提供内容部分
      *
      * @param bitSets   内容
@@ -169,8 +147,8 @@ public class FileToImg {
      */
     private void toImage(List<BitSet> bitSets, String directory) {
         String imgType = "png";
-        int imgWidth = (frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock) * 2 + contentBlock;
-        int imgHeight = (frameWhiteBlock + frameBlackBlock) * 2 + contentBlock;
+        int imgWidth = (frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength) * 2 + contentLength;
+        int imgHeight = (frameWhiteBlock + frameBlackLength) * 2 + contentLength;
         String head = genHead(fileByteNum);
         checkDirectory(directory);
         int i = 0;
@@ -182,7 +160,7 @@ public class FileToImg {
             addVary(img, i);
             addFrame(img);
             addHead(img, head);
-            String destPath = String.format("%s%06d.%s", directory, i, imgType);
+            String destPath = String.format("%s%06d.%s", directory, extractEncodingSymbolID(getFecPayloadID(bitSet)), imgType);
             try {
                 img.save(imgType, destPath);
             } catch (IOException e) {
@@ -217,10 +195,10 @@ public class FileToImg {
      * @param content 内容
      */
     protected void addContent(DrawImage img, BitSet content) {
-        int contentLeftOffset = frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock;
-        int contentTopOffset = frameWhiteBlock + frameBlackBlock;
-        int contentRightOffset = contentLeftOffset + contentBlock;
-        int contentBottomOffset = contentTopOffset + contentBlock;
+        int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
+        int contentTopOffset = frameWhiteBlock + frameBlackLength;
+        int contentRightOffset = contentLeftOffset + contentLength;
+        int contentBottomOffset = contentTopOffset + contentLength;
         int index = 0;
         for (int y = contentTopOffset; y < contentBottomOffset; y++) {
             for (int x = contentLeftOffset; x < contentRightOffset; x++) {
@@ -240,16 +218,16 @@ public class FileToImg {
      */
     protected void addVary(DrawImage img, int index) {
         img.setDefaultColor(Color.BLACK);
-        int leftVaryLeftOffset = frameWhiteBlock + frameBlackBlock;
-        int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryFirstBlock + frameVarySecondBlock + contentBlock;
-        int varyTopOffset = frameWhiteBlock + frameBlackBlock;
-        int varyBottomOffset = varyTopOffset + contentBlock;
+        int leftVaryLeftOffset = frameWhiteBlock + frameBlackLength;
+        int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryLength + frameVaryTwoLength + contentLength;
+        int varyTopOffset = frameWhiteBlock + frameBlackLength;
+        int varyBottomOffset = varyTopOffset + contentLength;
         if (index % 2 == 0) {
-            img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
-            img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryFirstBlock, contentBlock);
+            img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryLength, contentLength);
+            img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryLength, contentLength);
         } else {
-            img.fillRect(leftVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
-            img.fillRect(rightVaryLeftOffset + frameVaryFirstBlock, varyTopOffset, frameVarySecondBlock, contentBlock);
+            img.fillRect(leftVaryLeftOffset + frameVaryLength, varyTopOffset, frameVaryTwoLength, contentLength);
+            img.fillRect(rightVaryLeftOffset + frameVaryLength, varyTopOffset, frameVaryTwoLength, contentLength);
         }
     }
 
@@ -262,13 +240,13 @@ public class FileToImg {
         img.setDefaultColor(Color.BLACK);
         int frameLeftOffset = frameWhiteBlock;
         int frameTopOffset = frameLeftOffset;
-        int frameRightOffset = frameLeftOffset + 2 * (frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock) + contentBlock;
-        int frameBottomOffset = frameTopOffset + 2 * frameBlackBlock + contentBlock;
-        for (int i = frameTopOffset; i < frameBottomOffset; i += 2 * frameBlackBlock) {
-            img.fillRect(frameLeftOffset, i, frameBlackBlock, frameBlackBlock);
+        int frameRightOffset = frameLeftOffset + 2 * (frameBlackLength + frameVaryLength + frameVaryTwoLength) + contentLength;
+        int frameBottomOffset = frameTopOffset + 2 * frameBlackLength + contentLength;
+        for (int i = frameTopOffset; i < frameBottomOffset; i += 2 * frameBlackLength) {
+            img.fillRect(frameLeftOffset, i, frameBlackLength, frameBlackLength);
         }
-        img.fillRect(frameLeftOffset, frameBottomOffset - frameBlackBlock, frameRightOffset - frameLeftOffset, frameBlackBlock);
-        img.fillRect(frameRightOffset - frameBlackBlock, frameTopOffset, frameBlackBlock, frameBottomOffset - frameTopOffset);
+        img.fillRect(frameLeftOffset, frameBottomOffset - frameBlackLength, frameRightOffset - frameLeftOffset, frameBlackLength);
+        img.fillRect(frameRightOffset - frameBlackLength, frameTopOffset, frameBlackLength, frameBottomOffset - frameTopOffset);
     }
 
     /**
@@ -281,15 +259,15 @@ public class FileToImg {
         img.setDefaultColor(Color.BLACK);
         int headTopOffset = frameWhiteBlock;
         int headLeftOffset = headTopOffset;
-        int headRightOffset = headLeftOffset + 2 * (frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock) + contentBlock;
+        int headRightOffset = headLeftOffset + 2 * (frameBlackLength + frameVaryLength + frameVaryTwoLength) + contentLength;
         int i;
         for (i = 0; i < head.length(); i++) {
             if (head.charAt(i) == '0') {
-                img.fillRect(headLeftOffset + i * frameBlackBlock, headTopOffset, frameBlackBlock, frameBlackBlock);
+                img.fillRect(headLeftOffset + i * frameBlackLength, headTopOffset, frameBlackLength, frameBlackLength);
             }
         }
-        i = headLeftOffset + i * frameBlackBlock;
-        img.fillRect(i, headTopOffset, headRightOffset - i, frameBlackBlock);
+        i = headLeftOffset + i * frameBlackLength;
+        img.fillRect(i, headTopOffset, headRightOffset - i, frameBlackLength);
     }
 
     /**
@@ -306,5 +284,18 @@ public class FileToImg {
         String c = Integer.toBinaryString((int) crc.getValue());
         String s = Integer.toBinaryString(x);
         return pad32.substring(s.length()) + s + Pad8.substring(c.length()) + c;
+    }
+    public int getFecPayloadID(BitSet bitSet){
+        int value=0;
+        for (int i = bitSet.nextSetBit(0); i <32; i = bitSet.nextSetBit(i + 1)) {
+            value|=(1<<(i%8))<<(3-i/8)*8;
+        }
+        return value;
+    }
+    public int extractSourceBlockNumber(int fecPayloadID){
+        return fecPayloadID>>24;
+    }
+    public int extractEncodingSymbolID(int fecPayloadID){
+        return fecPayloadID&0x0FFF;
     }
 }

@@ -13,16 +13,16 @@ public class FileToImgZoom extends FileToImg {
     }
     public FileToImgZoom(){
         bitsPerBlock=2;
-        contentBlock = 40;
+        contentLength = 40;
         blockLength = 20;
-        ecSymbol = 40;
+        ecNum = 40;
     }
     protected void addContent(DrawImage img, BitSet content) {
-        int contentLeftOffset = frameWhiteBlock + frameBlackBlock + frameVaryFirstBlock + frameVarySecondBlock;
-        int contentTopOffset = frameWhiteBlock + frameBlackBlock;
-        int contentRightOffset = contentLeftOffset + contentBlock;
-        int contentBottomOffset = contentTopOffset + contentBlock;
-        img.clearBackground(Color.BLACK,contentLeftOffset,contentTopOffset,contentBlock,contentBlock);
+        int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
+        int contentTopOffset = frameWhiteBlock + frameBlackLength;
+        int contentRightOffset = contentLeftOffset + contentLength;
+        int contentBottomOffset = contentTopOffset + contentLength;
+        img.clearBackground(Color.BLACK,contentLeftOffset,contentTopOffset, contentLength, contentLength);
         img.setDefaultColor(Color.WHITE);
         int index = 0;
         float offsetX=0;
