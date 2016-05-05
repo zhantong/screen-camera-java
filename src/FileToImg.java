@@ -160,7 +160,8 @@ public class FileToImg {
             addVary(img, i);
             addFrame(img);
             addHead(img, head);
-            String destPath = String.format("%s%06d.%s", directory, extractEncodingSymbolID(getFecPayloadID(bitSet)), imgType);
+            //String destPath = String.format("%s%06d.%s", directory, extractEncodingSymbolID(getFecPayloadID(bitSet)), imgType);
+            String destPath = String.format("%s%06d.%s", directory, i, imgType);
             try {
                 img.save(imgType, destPath);
             } catch (IOException e) {
