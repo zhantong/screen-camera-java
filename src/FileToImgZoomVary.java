@@ -17,7 +17,7 @@ public class FileToImgZoomVary extends FileToImg {
         blockLength = 20;
         ecNum = 40;
     }
-    protected void addContent(DrawImage img, BitSet content) {
+    protected void addContent(DrawImage img, BitSet content,int barcodeIndex) {
         int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
         int contentTopOffset = frameWhiteBlock + frameBlackLength;
         int contentRightOffset = contentLeftOffset + contentLength;

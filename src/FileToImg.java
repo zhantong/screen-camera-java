@@ -156,7 +156,7 @@ public class FileToImg {
             i++;
             DrawImage img = new DrawImage(imgWidth, imgHeight, blockLength);
             img.setDefaultColor(Color.BLACK);
-            addContent(img, bitSet);
+            addContent(img, bitSet,i);
             addVary(img, i);
             addFrame(img);
             addHead(img, head);
@@ -195,7 +195,7 @@ public class FileToImg {
      * @param img     二维码
      * @param content 内容
      */
-    protected void addContent(DrawImage img, BitSet content) {
+    protected void addContent(DrawImage img, BitSet content,int barcodeIndex) {
         int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
         int contentTopOffset = frameWhiteBlock + frameBlackLength;
         int contentRightOffset = contentLeftOffset + contentLength;
