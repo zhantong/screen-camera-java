@@ -58,6 +58,8 @@ public class FileToImg {
     private List<byte[]> readFile(String filePath) {
         //一个二维码实际存储的文件信息,最后的8byte为RaptorQ头部
         final int realByteLength = bitsPerBlock* contentLength * contentLength / 8 - ecNum * ecLength / 8 - 8;
+        final int NUMBER_OF_SOURCE_BLOCKS=1;
+        final double REPAIR_PERCENT=0.5;
         List<byte[]> buffer = new LinkedList<>();
         Path path = Paths.get(filePath);
         byte[] byteData = null;
@@ -68,11 +70,10 @@ public class FileToImg {
             e.printStackTrace();
         }
         System.out.println(String.format("file is %d bytes", fileByteNum));
-        FECParameters parameters = FECParameters.newParameters(fileByteNum, realByteLength, 1);//只有1个source block
+        FECParameters parameters = FECParameters.newParameters(fileByteNum, realByteLength, NUMBER_OF_SOURCE_BLOCKS);
         assert byteData != null;
         DataEncoder dataEncoder = OpenRQ.newEncoder(byteData, parameters);
-        System.out.println(String.format("RaptorQ: total %d bytes; %d source blocks; %d bytes per frame",
-                parameters.dataLength(), dataEncoder.numberOfSourceBlocks(), parameters.symbolSize()));
+        System.out.println("RaptorQ parameters: "+parameters.toString());
         for (SourceBlockEncoder sourceBlockEncoder : dataEncoder.sourceBlockIterable()) {
             System.out.println(String.format("source block %d: contains %d source symbols",
                     sourceBlockEncoder.sourceBlockNumber(), sourceBlockEncoder.numberOfSourceSymbols()));
@@ -85,7 +86,7 @@ public class FileToImg {
         buffer.remove(buffer.size() - 1);
         SourceBlockEncoder lastSourceBlock = dataEncoder.sourceBlock(dataEncoder.numberOfSourceBlocks() - 1);
         buffer.add(lastSourceBlock.repairPacket(lastSourceBlock.numberOfSourceSymbols()).asArray());
-        int repairNum = buffer.size() / 2;
+        int repairNum = (int)(buffer.size()*REPAIR_PERCENT);
         for (int i = 1; i <= repairNum; i++) {
             for (SourceBlockEncoder sourceBlockEncoder : dataEncoder.sourceBlockIterable()) {
                 byte[] encode = sourceBlockEncoder.repairPacket(sourceBlockEncoder.numberOfSourceSymbols() + i).asArray();
