@@ -158,8 +158,10 @@ public class FileToImg {
             DrawImage img = new DrawImage(imgWidth, imgHeight, blockLength);
             img.setDefaultColor(Color.BLACK);
             addContent(img, bitSet,i);
-            addVary(img, i);
-            addFrame(img);
+            if(frameVaryLength!=0&&frameVaryTwoLength!=0) {
+                addVary(img, i);
+            }
+            addFrame(img,i);
             addHead(img, head);
             //String destPath = String.format("%s%06d.%s", directory, extractEncodingSymbolID(getFecPayloadID(bitSet)), imgType);
             String destPath = String.format("%s%06d.%s", directory, i, imgType);
@@ -238,7 +240,7 @@ public class FileToImg {
      *
      * @param img 二维码
      */
-    private void addFrame(DrawImage img) {
+    protected void addFrame(DrawImage img,int index) {
         img.setDefaultColor(Color.BLACK);
         int frameLeftOffset = frameWhiteBlock;
         int frameTopOffset = frameLeftOffset;

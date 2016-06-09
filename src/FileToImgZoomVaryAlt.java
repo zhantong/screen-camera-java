@@ -7,7 +7,7 @@ import java.util.BitSet;
 public class FileToImgZoomVaryAlt extends FileToImg {
     public static void main(String[] args) {
         String inputFilePath = "/Users/zhantong/Desktop/test3.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test11/";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test1/";
         FileToImg f = new FileToImgZoomVaryAlt();
         f.toImg(inputFilePath, outputImageDirectory);
     }
@@ -16,6 +16,9 @@ public class FileToImgZoomVaryAlt extends FileToImg {
         contentLength = 40;
         blockLength = 20;
         ecNum = 40;
+
+        frameVaryLength=0;
+        frameVaryTwoLength=0;
     }
     protected void addContent(DrawImage img, BitSet content,int barcodeIndex) {
         int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
@@ -67,36 +70,21 @@ public class FileToImgZoomVaryAlt extends FileToImg {
             }
         }
     }
-    protected void addVary(DrawImage img, int index) {
+    protected void addFrame(DrawImage img, int index){
         img.setDefaultColor(Color.BLACK);
-        int leftVaryLeftOffset = frameWhiteBlock + frameBlackLength;
-        int rightVaryLeftOffset = leftVaryLeftOffset + frameVaryLength + frameVaryTwoLength + contentLength;
-        int varyTopOffset = frameWhiteBlock + frameBlackLength;
-        int varyBottomOffset = varyTopOffset + contentLength;
+        int frameLeftOffset = frameWhiteBlock;
+        int frameTopOffset = frameLeftOffset;
+        int frameRightOffset = frameLeftOffset + 2 * (frameBlackLength + frameVaryLength + frameVaryTwoLength) + contentLength;
+        int frameBottomOffset = frameTopOffset + 2 * frameBlackLength + contentLength;
+        img.fillRect(frameLeftOffset, frameBottomOffset - frameBlackLength, frameRightOffset - frameLeftOffset, frameBlackLength);
+        img.fillRect(frameLeftOffset,frameTopOffset,frameBlackLength,frameBottomOffset - frameTopOffset);
+        img.fillRect(frameRightOffset - frameBlackLength, frameTopOffset, frameBlackLength, frameBottomOffset - frameTopOffset);
 
-        if (index % 2 == 0) {
-            img.fillRect(leftVaryLeftOffset, varyTopOffset, frameVaryLength, contentLength);
-            img.fillRect(rightVaryLeftOffset, varyTopOffset, frameVaryLength, contentLength);
-        } else {
-            img.fillRect(leftVaryLeftOffset + frameVaryLength, varyTopOffset, frameVaryTwoLength, contentLength);
-            img.fillRect(rightVaryLeftOffset + frameVaryLength, varyTopOffset, frameVaryTwoLength, contentLength);
-        }
-
-        if(index%2==0){
-            img.setDefaultColor(Color.BLACK);
-            img.fillRect(leftVaryLeftOffset+frameVaryLength,varyTopOffset,1,1);
-            img.fillRect(leftVaryLeftOffset+frameVaryLength,varyBottomOffset-frameVaryLength,1,1);
-        }else{
-            img.setDefaultColor(Color.WHITE);
-            img.fillRect(leftVaryLeftOffset+frameVaryLength,varyTopOffset,1,1);
-            img.fillRect(leftVaryLeftOffset+frameVaryLength,varyBottomOffset-frameVaryLength,1,1);
-        }
-        if(index/2%2==0){
-            img.setDefaultColor(Color.BLACK);
-            img.fillRect(leftVaryLeftOffset+frameVaryLength,varyTopOffset+frameVaryLength,1,1);
-        }else{
-            img.setDefaultColor(Color.WHITE);
-            img.fillRect(leftVaryLeftOffset+frameVaryLength,varyTopOffset+frameVaryLength,1,1);
+        img.setDefaultColor(Color.WHITE);
+        img.fillRect(frameLeftOffset,frameTopOffset+1,frameBlackLength,frameBlackLength);
+        if(index%2!=0){
+            img.fillRect(frameLeftOffset,frameTopOffset+3,frameBlackLength,frameBlackLength);
+            img.fillRect(frameLeftOffset,frameTopOffset+contentLength,frameBlackLength,frameBlackLength);
         }
     }
 }
