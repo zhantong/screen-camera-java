@@ -36,6 +36,10 @@ public class FileToImg {
     protected int bitsPerBlock=1;
     protected int fileByteNum;
 
+    private static final int SAVE_AS_PNG=1;
+    private static final int SAVE_AS_EPS=2;
+    private int saveImageType=SAVE_AS_PNG;
+
     /**
      * 由输入文件生成多个二维码到指定文件夹
      *
@@ -147,7 +151,17 @@ public class FileToImg {
      * @param directory 生成二维码文件夹路径
      */
     private void toImage(List<BitSet> bitSets, String directory) {
-        String imgType = "png";
+        String imgType;
+        switch (saveImageType){
+            case SAVE_AS_PNG:
+                imgType="png";
+                break;
+            case SAVE_AS_EPS:
+                imgType="eps";
+                break;
+            default:
+                throw new RuntimeException();
+        }
         int imgWidth = (frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength) * 2 + contentLength;
         int imgHeight = (frameWhiteBlock + frameBlackLength) * 2 + contentLength;
         String head = genHead(fileByteNum);
@@ -155,7 +169,19 @@ public class FileToImg {
         int i = 0;
         for (BitSet bitSet : bitSets) {
             i++;
-            DrawImage img = new DrawImage(imgWidth, imgHeight, blockLength);
+            //String destPath = String.format("%s%06d.%s", directory, extractEncodingSymbolID(getFecPayloadID(bitSet)), imgType);
+            String destPath = String.format("%s%06d.%s", directory, i, imgType);
+            DrawImage img;
+            switch (saveImageType){
+                case SAVE_AS_PNG:
+                    img = new DrawImage(imgWidth, imgHeight, blockLength);
+                    break;
+                case SAVE_AS_EPS:
+                    img = new DrawImage(imgWidth, imgHeight, blockLength,destPath);
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
             img.setDefaultColor(Color.BLACK);
             addContent(img, bitSet,i);
             if(frameVaryLength!=0&&frameVaryTwoLength!=0) {
@@ -163,10 +189,18 @@ public class FileToImg {
             }
             addFrame(img,i);
             addHead(img, head);
-            //String destPath = String.format("%s%06d.%s", directory, extractEncodingSymbolID(getFecPayloadID(bitSet)), imgType);
-            String destPath = String.format("%s%06d.%s", directory, i, imgType);
+
             try {
-                img.save(imgType, destPath);
+                switch (saveImageType){
+                    case SAVE_AS_PNG:
+                        img.save(imgType, destPath);
+                        break;
+                    case SAVE_AS_EPS:
+                        img.save();
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

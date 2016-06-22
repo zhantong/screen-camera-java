@@ -1,7 +1,10 @@
+import org.sourceforge.jlibeps.epsgraphics.EpsGraphics2D;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -18,6 +21,16 @@ public class DrawImage {
         img=new BufferedImage(imgWidth,imgHeight,BufferedImage.TYPE_BYTE_BINARY);
         g=img.createGraphics();
         initGraphics(imgWidth,imgHeight);
+    }
+    public DrawImage(int imgWidthBlock,int imgHeightBlock,int blockLength,String filePath){
+        this.blockLength=blockLength;
+        int imgWidth=imgWidthBlock*blockLength;
+        int imgHeight=imgHeightBlock*blockLength;
+        try {
+            g = new EpsGraphics2D("Title", new FileOutputStream(filePath), 0, 0, imgWidth, imgHeight);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
     private void initGraphics(int imgWidth,int imgHeight){
         g.setBackground(Color.WHITE);
@@ -50,5 +63,10 @@ public class DrawImage {
         img.flush();
         File file=new File(filePath);
         ImageIO.write(img,imgFormat,file);
+    }
+    public void save() throws IOException{
+        EpsGraphics2D epsG=(EpsGraphics2D)g;
+        epsG.flush();
+        epsG.close();
     }
 }
