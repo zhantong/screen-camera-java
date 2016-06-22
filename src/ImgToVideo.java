@@ -8,7 +8,11 @@ import java.io.LineNumberReader;
  */
 public class ImgToVideo {
     public static void main(String[] args){
-        runFFMpeg("/Users/zhantong/Desktop/test6",25,"/Users/zhantong/Downloads/SnowLeopard_Lion_Mountain_Lion_Mavericks_Yosemite_El-Captain_02.02.2016/ffmpeg");
+        //runFFMpeg("/Users/zhantong/Desktop/test1",25,"/Users/zhantong/Downloads/SnowLeopard_Lion_Mountain_Lion_Mavericks_Yosemite_El-Captain_02.02.2016/ffmpeg");
+        runFFMpeg("/Users/zhantong/Desktop/test1",30);
+    }
+    public static void runFFMpeg(String imgDir,int framerate){
+        runFFMpeg(imgDir,framerate,null);
     }
     public static void runFFMpeg(String imgDir,int framerate,String ffmpegDir){
         String command=String.format("ffmpeg -framerate %d -i %s -c:v libx264 -r %d -pix_fmt yuv420p out_framerate_%d.mp4",framerate,"%06d.png",framerate,framerate);
