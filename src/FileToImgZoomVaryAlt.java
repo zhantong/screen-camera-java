@@ -7,7 +7,7 @@ import java.util.BitSet;
 public class FileToImgZoomVaryAlt extends FileToImg {
     public static void main(String[] args) {
         String inputFilePath = "/Users/zhantong/Desktop/test3.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test3/";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test4/";
         FileToImg f = new FileToImgZoomVaryAlt();
         f.toImg(inputFilePath, outputImageDirectory);
     }
@@ -84,9 +84,8 @@ public class FileToImgZoomVaryAlt extends FileToImg {
         }
 
         img.setDefaultColor(Color.WHITE);
-        img.fillRect(frameLeftOffset,frameTopOffset+1,frameBlackLength,frameBlackLength);
         if(index%2!=0){
-            img.fillRect(frameLeftOffset,frameTopOffset+3,frameBlackLength,frameBlackLength);
+            img.fillRect(frameLeftOffset,frameTopOffset+1,frameBlackLength,frameBlackLength);
             img.fillRect(frameLeftOffset,frameTopOffset+contentLength,frameBlackLength,frameBlackLength);
         }
     }
