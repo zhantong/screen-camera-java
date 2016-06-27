@@ -32,7 +32,7 @@ public class FileToImg {
     protected int contentLength = 80;//内容
     protected int blockLength = 6;//小方格边长对应像素点
     protected int ecNum = 80;//RS纠错中用于纠错的symbol个数
-    protected int ecLength = 10;//一个symbol对应bit数目,应与RS的decoder参数保持一致
+    protected int ecLength = 12;//一个symbol对应bit数目,应与RS的decoder参数保持一致
     protected int bitsPerBlock=1;
     protected int fileByteNum;
 
@@ -108,17 +108,17 @@ public class FileToImg {
      * @return RS编码后转换为BitSet组成的list
      */
     private List<BitSet> RSEncode(List<byte[]> byteBuffer) {
-        ReedSolomonEncoder encoder = new ReedSolomonEncoder(GenericGF.AZTEC_DATA_10);
+        ReedSolomonEncoder encoder = new ReedSolomonEncoder(GenericGF.AZTEC_DATA_12);
         List<BitSet> bitSets = new LinkedList<>();
         for (byte[] b : byteBuffer) {
-            int[] ordered = new int[bitsPerBlock* contentLength * contentLength / ecLength];
+            int[] ordered = new int[(int)Math.ceil((double)bitsPerBlock* contentLength * contentLength / ecLength)];
             for (int i = 0; i < b.length * 8; i++) {
                 if ((b[i / 8] & (1 << (i % 8))) > 0) {
                     ordered[i / ecLength] |= 1 << (i % ecLength);
                 }
             }
             encoder.encode(ordered, ecNum);
-            bitSets.add(toBitSet(ordered, ecLength));
+            bitSets.add(toBitSet(ordered, ecLength,bitsPerBlock*contentLength*contentLength-ecLength*ecNum));
         }
         return bitSets;
     }
@@ -130,15 +130,26 @@ public class FileToImg {
      * @param bitNum 用到的int的低bitNum位
      * @return 转换得到的BitSet
      */
-    private static BitSet toBitSet(int data[],int bitNum){
+    private static BitSet toBitSet(int data[],int bitNum,int numRealBits){
+        int cut=(numRealBits-1)/bitNum;
         int index=0;
         BitSet bitSet=new BitSet();
-        for(int current:data){
-            for(int i=0;i<bitNum;i++){
-                if((current&(1<<i))>0){
-                    bitSet.set(index);
+        for(int j=0;j<data.length;j++){
+            int current=data[j];
+            if(j==cut){
+                for(int i=0;i<=(numRealBits-1)%bitNum;i++){
+                    if((current&(1<<i))>0){
+                        bitSet.set(index);
+                    }
+                    index++;
                 }
-                index++;
+            }else{
+                for(int i=0;i<bitNum;i++){
+                    if((current&(1<<i))>0){
+                        bitSet.set(index);
+                    }
+                    index++;
+                }
             }
         }
         return bitSet;
@@ -298,8 +309,11 @@ public class FileToImg {
         int headTopOffset = frameWhiteBlock;
         int headLeftOffset = headTopOffset;
         int headRightOffset = headLeftOffset + 2 * (frameBlackLength + frameVaryLength + frameVaryTwoLength) + contentLength;
+        if(head.length()>headRightOffset-headLeftOffset){
+            System.out.println("Warning: head exceed barcode");
+        }
         int i;
-        for (i = 0; i < head.length(); i++) {
+        for (i = 0; i < head.length()&&i<headRightOffset-headLeftOffset; i++) {
             if (head.charAt(i) == '0') {
                 img.fillRect(headLeftOffset + i * frameBlackLength, headTopOffset, frameBlackLength, frameBlackLength);
             }
