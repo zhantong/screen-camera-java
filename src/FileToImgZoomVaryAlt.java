@@ -6,19 +6,23 @@ import java.util.BitSet;
  */
 public class FileToImgZoomVaryAlt extends FileToImg {
     public static void main(String[] args) {
-        String inputFilePath = "/Users/zhantong/Desktop/test3.txt";
-        String outputImageDirectory = "/Users/zhantong/Desktop/test4/";
+        String inputFilePath = "/Users/zhantong/Desktop/sample6.txt";
+        String outputImageDirectory = "/Users/zhantong/Desktop/test23/";
         FileToImg f = new FileToImgZoomVaryAlt();
         f.toImg(inputFilePath, outputImageDirectory);
     }
     public FileToImgZoomVaryAlt(){
         bitsPerBlock=2;
-        contentLength = 40;
+        contentLength = 80;
         blockLength = 20;
-        ecNum = 40;
-
+        double ecLevel=0.2;
+        ecNum = calcEcNum(ecLevel);
+        System.out.println("RS: level: "+ecLevel+" number: "+ecNum);
         frameVaryLength=0;
         frameVaryTwoLength=0;
+    }
+    private int calcEcNum(double ecLevel){
+        return ((int)((bitsPerBlock*contentLength*contentLength/ecLength)*ecLevel))/2*2;
     }
     protected void addContent(DrawImage img, BitSet content,int barcodeIndex) {
         int contentLeftOffset = frameWhiteBlock + frameBlackLength + frameVaryLength + frameVaryTwoLength;
