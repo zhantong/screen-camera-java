@@ -21,7 +21,7 @@ public class FileToImgZoomVaryAlt extends FileToImg {
         frameVaryLength=0;
         frameVaryTwoLength=0;
     }
-    private int calcEcNum(double ecLevel){
+    protected int calcEcNum(double ecLevel){
         return ((int)((bitsPerBlock*contentLength*contentLength/ecLength)*ecLevel))/2*2;
     }
     protected void addContent(DrawImage img, BitSet content,int barcodeIndex) {
