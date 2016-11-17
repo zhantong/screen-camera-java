@@ -16,7 +16,7 @@ public class Zone {
         Zone zone=new Zone(10,10,new BlackWhiteBlock(),4,4,1,1);
         Image image=new Image((zone.widthInBlock+2)*zone.blockWidthInPixel,(zone.heightInBlock+2)*zone.blockHeightInPixel, BufferedImage.TYPE_INT_RGB);
         int[] content={1,2,3};
-        BitContent bitContent=new BitContent(Utils.intArrayToBitSet(content,8),1);
+        BitContent bitContent=new BitContent(Utils.intArrayToBitSet(content,8));
         zone.fillZone(image,bitContent);
         try {
             image.save("png","test.png");
@@ -34,9 +34,12 @@ public class Zone {
         this.baseOffsetInBlockY=baseOffsetInBlockY;
     }
     public void fillZone(Image image, BitContent content){
+        int pos=0;
+        int bitsPerUnit=defaultBlock.getBitsPerUnit();
         for(int y=0;y<heightInBlock;y++){
             for(int x=0;x<widthInBlock;x++){
-                int value=content.get();
+                int value=content.get(pos,bitsPerUnit);
+                pos+=bitsPerUnit;
                 defaultBlock.draw(image,(baseOffsetInBlockX+x)* blockWidthInPixel,(baseOffsetInBlockY+y)* blockHeightInPixel, blockWidthInPixel, blockHeightInPixel,value);
             }
         }

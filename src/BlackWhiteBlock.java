@@ -16,4 +16,8 @@ public class BlackWhiteBlock implements Block{
         }
         image.fillRect(x,y,width,height,color);
     }
+
+    public int getBitsPerUnit() {
+        return 1;
+    }
 }

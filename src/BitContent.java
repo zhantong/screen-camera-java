@@ -5,15 +5,11 @@ import java.util.BitSet;
  */
 public class BitContent {
     private BitSet content;
-    private int posInUnit;
-    private int bitsPerUnit;
-    public BitContent(BitSet content,int bitsPerUnit){
+    public BitContent(BitSet content){
         this.content=content;
-        this.bitsPerUnit=bitsPerUnit;
     }
-    public int get(){
-        int value= Utils.bitsToInt(content,bitsPerUnit,(posInUnit)*bitsPerUnit);
-        posInUnit+=1;
+    public int get(int pos,int length){
+        int value= Utils.bitsToInt(content,length,pos);
         return value;
     }
 }

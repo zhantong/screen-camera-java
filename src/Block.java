@@ -3,4 +3,5 @@
  */
 public interface Block {
     void draw(Image image,int x,int y,int width,int height,int value);
+    int getBitsPerUnit();
 }
