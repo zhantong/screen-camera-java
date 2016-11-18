@@ -9,6 +9,10 @@ public class District {
     Zone up;
     Zone right;
     Zone down;
+    Zone leftUp;
+    Zone rightUp;
+    Zone leftDown;
+    Zone rightDown;
     List<Zone> zones;
     public District(){
         zones=new ArrayList<>();

@@ -8,10 +8,10 @@ public class Zone {
     private Block defaultBlock;
     private int blockWidthInPixel;
     private int blockHeightInPixel;
-    private int widthInBlock;
-    private int heightInBlock;
-    private int baseOffsetInBlockX;
-    private int baseOffsetInBlockY;
+    public int widthInBlock;
+    public int heightInBlock;
+    public int baseOffsetInBlockX;
+    public int baseOffsetInBlockY;
     public static void main(String[] args){
         Zone zone=new Zone(10,10,new BlackWhiteBlock(),4,4,1,1);
         Image image=new Image((zone.widthInBlock+2)*zone.blockWidthInPixel,(zone.heightInBlock+2)*zone.blockHeightInPixel, BufferedImage.TYPE_INT_RGB);
@@ -43,5 +43,17 @@ public class Zone {
                 defaultBlock.draw(image,(baseOffsetInBlockX+x)* blockWidthInPixel,(baseOffsetInBlockY+y)* blockHeightInPixel, blockWidthInPixel, blockHeightInPixel,value);
             }
         }
+    }
+    public int startInBlockX(){
+        return baseOffsetInBlockX;
+    }
+    public int startInBlockY(){
+        return baseOffsetInBlockY;
+    }
+    public int endInBlockX(){
+        return baseOffsetInBlockX+widthInBlock;
+    }
+    public int endInBlockY(){
+        return baseOffsetInBlockY+heightInBlock;
     }
 }
