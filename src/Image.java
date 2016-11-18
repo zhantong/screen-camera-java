@@ -10,6 +10,9 @@ import java.io.IOException;
 public class Image {
     private BufferedImage image;
     private Graphics2D g;
+    public Image(int widthInPixel,int heightInPixel){
+        this(widthInPixel,heightInPixel,BufferedImage.TYPE_INT_RGB);
+    }
     public Image(int widthInPixel,int heightInPixel,int colorType){
         image=new BufferedImage(widthInPixel,heightInPixel,colorType);
         g=image.createGraphics();

@@ -20,6 +20,8 @@ public class BarCodeConfig {
     public int mainWidth=8;
     public int mainHeight=8;
 
+    public int blockLengthInPixel=4;
+
     public Block marginBlock=new BlackWhiteBlock();
     public Block borderBlock=new BlackWhiteBlock();
     public Block paddingBlock=new BlackWhiteBlock();
