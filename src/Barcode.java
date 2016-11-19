@@ -7,6 +7,7 @@ import java.util.Iterator;
 public class Barcode {
     Districts districts;
     BarcodeConfig config;
+    int index;
     public static void main(String[] args){
         int[] onesArray=new int[]{255,255,255,255,255};
         int[] zerosArray=new int[]{0,0,0,0,0};
@@ -18,7 +19,7 @@ public class Barcode {
         BitContent data=new BitContent(Utils.intArrayToBitSet(dataArray,8));
 
 
-        Barcode barcode =new Barcode(new BarcodeConfig());
+        Barcode barcode =new Barcode(0,new BarcodeConfig());
         barcode.districts.get(Districts.MARGIN).get(District.LEFT).addContent(ones);
         barcode.districts.get(Districts.MARGIN).get(District.UP).addContent(ones);
         barcode.districts.get(Districts.MARGIN).get(District.RIGHT).addContent(ones);
@@ -38,8 +39,9 @@ public class Barcode {
             e.printStackTrace();
         }
     }
-    public Barcode(BarcodeConfig config){
+    public Barcode(int index,BarcodeConfig config){
         this.config=config;
+        this.index=index;
         districts=new Districts();
         int MARGIN=Districts.MARGIN;
         int BORDER=Districts.BORDER;
@@ -185,7 +187,7 @@ public class Barcode {
             while(zoneItr.hasNext()){
                 Zone zone=zoneItr.next();
                 if(zone!=null&&zone.getContent()!=null){
-                    zone.toImage(image,blockLengthInPixels);
+                    zone.toImage(image,blockLengthInPixels,index);
                     System.out.println("count zone: "+countZone++);
                 }
             }

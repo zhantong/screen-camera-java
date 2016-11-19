@@ -37,10 +37,10 @@ public class Zone {
     public BitContent getContent(){
         return content;
     }
-    public void toImage(Image image,int blockLengthInPixel){
-        toImage(image,block,blockLengthInPixel);
+    public void toImage(Image image,int blockLengthInPixel,int barcodeIndex){
+        toImage(image,block,blockLengthInPixel,barcodeIndex);
     }
-    public void toImage(Image image,Block block,int blockLengthInPixel){
+    public void toImage(Image image,Block block,int blockLengthInPixel,int barcodeIndex){
         int pos=0;
         int blockWidthInPixel=blockLengthInPixel;
         int blockHeightInPixel=blockLengthInPixel;
@@ -49,7 +49,7 @@ public class Zone {
             for(int x=0;x<widthInBlock;x++){
                 int value=content.get(pos,bitsPerUnit);
                 pos+=bitsPerUnit;
-                block.draw(image,(baseOffsetInBlockX+x)* blockWidthInPixel,(baseOffsetInBlockY+y)* blockHeightInPixel, blockWidthInPixel, blockHeightInPixel,value);
+                block.draw(image,(baseOffsetInBlockX+x)* blockWidthInPixel,(baseOffsetInBlockY+y)* blockHeightInPixel, blockWidthInPixel, blockHeightInPixel,value,barcodeIndex,x,y);
             }
         }
     }
