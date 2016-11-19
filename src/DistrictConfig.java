@@ -17,7 +17,15 @@ public class DistrictConfig<T> {
             configs.set(i,t);
         }
     }
+    public DistrictConfig(T left,T up,T right,T down){
+        this();
+        configs.set(District.LEFT,left);
+        configs.set(District.UP,up);
+        configs.set(District.RIGHT,right);
+        configs.set(District.DOWN,down);
+    }
     public DistrictConfig(T left,T up,T right,T down,T leftUp,T rightUp,T rightDown,T leftDown){
+        this();
         configs.set(District.LEFT,left);
         configs.set(District.UP,up);
         configs.set(District.RIGHT,right);
