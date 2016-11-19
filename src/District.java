@@ -17,9 +17,11 @@ public class District implements Iterable<Zone>{
 
     public static final int MAIN=0;
 
+    public static final int NUM_TYPES=8;
+
     private List<Zone> zones=new ArrayList<>();
     public District(){
-        for(int i=0;i<8;i++){
+        for(int i=0;i<NUM_TYPES;i++){
             zones.add(null);
         }
     }

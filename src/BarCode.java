@@ -59,130 +59,118 @@ public class BarCode {
         districts.get(MARGIN).set(LEFT_UP,new Zone(config.marginLeftWidth,
                 config.marginUpHeight,
                 0,
-                0,
-                config.marginBlock));
+                0));
         districts.get(MARGIN).set(LEFT,new Zone(config.marginLeftWidth,
                 config.borderUpHeight+config.paddingUpHeight+config.mainHeight+config.paddingDownHeight+config.borderDownHeight,
                 districts.get(MARGIN).get(LEFT_UP).startInBlockX(),
-                districts.get(MARGIN).get(LEFT_UP).endInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(LEFT_UP).endInBlockY()));
         districts.get(MARGIN).set(UP,new Zone(config.borderLeftWidth+config.paddingLeftWidth+config.mainWidth+config.paddingRightWidth+config.borderRightWidth,
                 config.marginUpHeight,
                 districts.get(MARGIN).get(LEFT_UP).endInBlockX(),
-                districts.get(MARGIN).get(LEFT_UP).startInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(LEFT_UP).startInBlockY()));
         districts.get(MARGIN).set(LEFT_DOWN,new Zone(config.marginLeftWidth,
                 config.marginDownHeight,
                 districts.get(MARGIN).get(LEFT).startInBlockX(),
-                districts.get(MARGIN).get(LEFT).endInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(LEFT).endInBlockY()));
         districts.get(MARGIN).set(DOWN,new Zone(districts.get(MARGIN).get(UP).widthInBlock,
                 config.marginDownHeight,
                 districts.get(MARGIN).get(LEFT_DOWN).endInBlockX(),
-                districts.get(MARGIN).get(LEFT_DOWN).startInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(LEFT_DOWN).startInBlockY()));
         districts.get(MARGIN).set(RIGHT_UP,new Zone(config.marginRightWidth,
                 config.marginUpHeight,
                 districts.get(MARGIN).get(UP).endInBlockX(),
-                districts.get(MARGIN).get(UP).startInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(UP).startInBlockY()));
         districts.get(MARGIN).set(RIGHT,new Zone(config.marginRightWidth,
                 districts.get(MARGIN).get(LEFT).heightInBlock,
                 districts.get(MARGIN).get(RIGHT_UP).startInBlockX(),
-                districts.get(MARGIN).get(RIGHT_UP).endInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(RIGHT_UP).endInBlockY()));
         districts.get(MARGIN).set(RIGHT_DOWN,new Zone(config.marginRightWidth,
                 config.marginDownHeight,
                 districts.get(MARGIN).get(RIGHT).startInBlockX(),
-                districts.get(MARGIN).get(RIGHT).endInBlockY(),
-                config.marginBlock));
+                districts.get(MARGIN).get(RIGHT).endInBlockY()));
 
         districts.get(BORDER).set(LEFT_UP,new Zone(config.borderLeftWidth,
                 config.borderUpHeight,
                 districts.get(MARGIN).get(LEFT).endInBlockX(),
-                districts.get(MARGIN).get(UP).endInBlockY(),
-                config.borderBlock));
+                districts.get(MARGIN).get(UP).endInBlockY()));
         districts.get(BORDER).set(UP,new Zone(config.paddingLeftWidth+config.mainWidth+config.paddingRightWidth,
                 config.borderUpHeight,
                 districts.get(BORDER).get(LEFT_UP).endInBlockX(),
-                districts.get(BORDER).get(LEFT_UP).startInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(LEFT_UP).startInBlockY()));
         districts.get(BORDER).set(LEFT,new Zone(config.borderLeftWidth,
                 config.paddingUpHeight+config.mainHeight+config.paddingDownHeight,
                 districts.get(BORDER).get(LEFT_UP).startInBlockX(),
-                districts.get(BORDER).get(LEFT_UP).endInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(LEFT_UP).endInBlockY()));
         districts.get(BORDER).set(LEFT_DOWN,new Zone(config.borderLeftWidth,
                 config.borderDownHeight,
                 districts.get(BORDER).get(LEFT).startInBlockX(),
-                districts.get(BORDER).get(LEFT).endInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(LEFT).endInBlockY()));
         districts.get(BORDER).set(DOWN,new Zone(districts.get(BORDER).get(UP).widthInBlock,
                 config.borderDownHeight,
                 districts.get(BORDER).get(LEFT_DOWN).endInBlockX(),
-                districts.get(BORDER).get(LEFT_DOWN).startInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(LEFT_DOWN).startInBlockY()));
         districts.get(BORDER).set(RIGHT_UP,new Zone(config.borderRightWidth,
                 config.borderUpHeight,
                 districts.get(BORDER).get(UP).endInBlockX(),
-                districts.get(BORDER).get(UP).startInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(UP).startInBlockY()));
         districts.get(BORDER).set(RIGHT,new Zone(config.borderRightWidth,
                 districts.get(BORDER).get(LEFT).heightInBlock,
                 districts.get(BORDER).get(RIGHT_UP).startInBlockX(),
-                districts.get(BORDER).get(RIGHT_UP).endInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(RIGHT_UP).endInBlockY()));
         districts.get(BORDER).set(RIGHT_DOWN,new Zone(config.borderRightWidth,
                 config.borderDownHeight,
                 districts.get(BORDER).get(RIGHT).startInBlockX(),
-                districts.get(BORDER).get(RIGHT).endInBlockY(),
-                config.borderBlock));
+                districts.get(BORDER).get(RIGHT).endInBlockY()));
 
         districts.get(PADDING).set(LEFT_UP,new Zone(config.paddingLeftWidth,
                 config.paddingUpHeight,
                 districts.get(BORDER).get(LEFT).endInBlockX(),
-                districts.get(BORDER).get(UP).endInBlockY(),
-                config.paddingBlock));
+                districts.get(BORDER).get(UP).endInBlockY()));
         districts.get(PADDING).set(UP,new Zone(config.mainWidth,
                 config.paddingUpHeight,
                 districts.get(PADDING).get(LEFT_UP).endInBlockX(),
-                districts.get(PADDING).get(LEFT_UP).startInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(LEFT_UP).startInBlockY()));
         districts.get(PADDING).set(LEFT,new Zone(config.paddingLeftWidth,
                 config.mainHeight,
                 districts.get(PADDING).get(LEFT_UP).startInBlockX(),
-                districts.get(PADDING).get(LEFT_UP).endInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(LEFT_UP).endInBlockY()));
         districts.get(PADDING).set(LEFT_DOWN,new Zone(config.paddingLeftWidth,
                 config.paddingDownHeight,
                 districts.get(PADDING).get(LEFT).startInBlockX(),
-                districts.get(PADDING).get(LEFT).endInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(LEFT).endInBlockY()));
         districts.get(PADDING).set(DOWN,new Zone(districts.get(PADDING).get(UP).widthInBlock,
                 config.paddingDownHeight,
                 districts.get(PADDING).get(LEFT_DOWN).endInBlockX(),
-                districts.get(PADDING).get(LEFT_DOWN).startInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(LEFT_DOWN).startInBlockY()));
         districts.get(PADDING).set(RIGHT_UP,new Zone(config.paddingRightWidth,
                 config.paddingUpHeight,
                 districts.get(PADDING).get(UP).endInBlockX(),
-                districts.get(PADDING).get(UP).startInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(UP).startInBlockY()));
         districts.get(PADDING).set(RIGHT,new Zone(config.paddingRightWidth,
                 districts.get(PADDING).get(LEFT).heightInBlock,
                 districts.get(PADDING).get(RIGHT_UP).startInBlockX(),
-                districts.get(PADDING).get(RIGHT_UP).endInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(RIGHT_UP).endInBlockY()));
         districts.get(PADDING).set(RIGHT_DOWN,new Zone(config.paddingRightWidth,
                 config.paddingDownHeight,
                 districts.get(PADDING).get(RIGHT).startInBlockX(),
-                districts.get(PADDING).get(RIGHT).endInBlockY(),
-                config.paddingBlock));
+                districts.get(PADDING).get(RIGHT).endInBlockY()));
         districts.get(MAIN_DISTRICT).set(MAIN_ZONE,new Zone(config.mainWidth,
                 config.mainHeight,
                 districts.get(PADDING).get(LEFT).endInBlockX(),
-                districts.get(PADDING).get(UP).endInBlockY(),
-                config.mainBlock));
+                districts.get(PADDING).get(UP).endInBlockY()));
+
+        int[] parts=new int[]{District.LEFT,District.UP,District.RIGHT,District.DOWN,
+                District.LEFT_UP,District.RIGHT_UP,District.RIGHT_DOWN,District.LEFT_DOWN};
+        for(int part:parts){
+            districts.get(Districts.MARGIN).get(part).addBlock(config.marginBlock.get(part));
+            districts.get(Districts.BORDER).get(part).addBlock(config.borderBlock.get(part));
+            districts.get(Districts.PADDING).get(part).addBlock(config.paddingBlock.get(part));
+
+            districts.get(Districts.MARGIN).get(part).addContent(config.marginContent.get(part));
+            districts.get(Districts.BORDER).get(part).addContent(config.borderContent.get(part));
+            districts.get(Districts.PADDING).get(part).addContent(config.paddingContent.get(part));
+        }
+        districts.get(Districts.MAIN).get(District.MAIN).addBlock(config.mainBlock.get(District.MAIN));
     }
     public Image toImage(){
         int blockLengthInPixels=config.blockLengthInPixel;
