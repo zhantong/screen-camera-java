@@ -38,4 +38,7 @@ public class DistrictConfig<T> {
     public T get(int part){
         return configs.get(part);
     }
+    public void set(int part,T t){
+        configs.set(part,t);
+    }
 }
