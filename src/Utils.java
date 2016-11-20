@@ -6,8 +6,7 @@ import net.fec.openrq.encoder.DataEncoder;
 import net.fec.openrq.encoder.SourceBlockEncoder;
 import net.fec.openrq.parameters.FECParameters;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -172,5 +171,12 @@ public class Utils {
         concatBitSets(result,32,checksumBitSet);
         return result;
     }
-
+    public static String inputStreamToString(InputStream s) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(s));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null)
+            sb.append(line).append("\n");
+        return sb.toString();
+    }
 }
