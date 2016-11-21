@@ -1,24 +1,36 @@
 import net.fec.openrq.parameters.FECParameters;
 
 import java.io.IOException;
-import java.util.BitSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by zhantong on 2016/11/19.
  */
 public class ShiftCode {
     ShiftCodeConfig config;
-    int rSEcSize=12;
-    double rSEcLevel=0.2;
+    int rSEcSize;
+    float rSEcLevel;
     int numRSEc;
     public static void main(String[] args){
-        ShiftCode shiftCode=new ShiftCode();
+        Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
+        hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
+        hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.2);
+        ShiftCode shiftCode=new ShiftCode(hints);
         shiftCode.toImages("/Users/zhantong/Desktop/phpinfo.txt","/Users/zhantong/Desktop/out");
     }
-    public ShiftCode(){
+    public ShiftCode(Map<EncodeHintType,?> hints){
         config=new ShiftCodeConfig();
+
+        rSEcSize=12;
+        rSEcLevel=0.2f;
+        if(hints!=null){
+            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_SIZE)){
+                rSEcSize=Integer.parseInt(hints.get(EncodeHintType.RS_ERROR_CORRECTION_SIZE).toString());
+            }
+            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_LEVEL)){
+                rSEcLevel=Float.parseFloat(hints.get(EncodeHintType.RS_ERROR_CORRECTION_LEVEL).toString());
+            }
+        }
         numRSEc=calcEcNum(rSEcLevel);
         BitSet rightBarBitSet=new BitSet();
         for(int i=0;i<config.mainHeight;i+=2){
@@ -85,7 +97,7 @@ public class ShiftCode {
             }
         }
     }
-    protected int calcEcNum(double ecLevel){
+    protected int calcEcNum(float ecLevel){
         return ((int)((config.mainBlock.get(District.MAIN).getBitsPerUnit()*config.mainWidth*config.mainHeight/rSEcSize)*ecLevel))/2*2;
     }
 }
