@@ -29,11 +29,12 @@ public class ShiftCode {
 
         config.borderContent.set(District.RIGHT,rightBarContent);
     }
-    private void toImages(String inputFilePath,String outputDirectoryPath){
+    protected void toImages(String inputFilePath,String outputDirectoryPath){
         int rSEcSize=12;
         float rSEcLevel=0.2f;
         int NUMBER_OF_SOURCE_BLOCKS=1;
         float raptorQRedundancy=0.5f;
+        boolean isReplaceLastSourcePacketAsRepair=true;
         if(hints!=null){
             if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_SIZE)){
                 rSEcSize=Integer.parseInt(hints.get(EncodeHintType.RS_ERROR_CORRECTION_SIZE).toString());
@@ -47,39 +48,25 @@ public class ShiftCode {
             if(hints.containsKey(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT)){
                 raptorQRedundancy=Float.parseFloat(hints.get(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT).toString());
             }
+            if(hints.containsKey(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR)){
+                isReplaceLastSourcePacketAsRepair=Boolean.parseBoolean(hints.get(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR).toString());
+            }
         }
         int numRSEc=calcEcNum(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize,rSEcLevel);
-        byte[] inputFileArray=new byte[1];
-        try {
-            inputFileArray=Utils.fileToByteArray(inputFilePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        byte[] inputFileArray=getInputFileBytes(inputFilePath);
+
         configureTopBar(config,inputFileArray.length);
 
         int numDataBytes = calcNumDataBytes(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize,numRSEc);
         FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);
-        List<byte[]> raptorQ=Utils.raptorQEncode(inputFileArray,parameters,raptorQRedundancy,true);
-        List<int[]> rS=new LinkedList<>();
-        for(byte[] data:raptorQ){
-            int[] converted=Utils.byteArrayToIntArray(data,rSEcSize);
-            int[] rSEncoded=Utils.rSEncode(converted,numRSEc,rSEcSize);
-            rS.add(rSEncoded);
-        }
-        List<BitSet> rSBitSet=new LinkedList<>();
-
-        for(int[] data:rS){
-            BitSet dataBitSet=Utils.intArrayToBitSet(data,rSEcSize);
-            rSBitSet.add(dataBitSet);
-
-/*            byte[] converted=Utils.intArrayToByteArray(data,rSEcSize);
-            BitSet dataBitSet=BitSet.valueOf(converted);
-            rSBitSet.add(dataBitSet);*/
-
-        }
-
-        for(int i=0;i<rSBitSet.size();i++){
-            BitSet dataBitSet=rSBitSet.get(i);
+        List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
+        List<int[]> rS=reedSolomonEncode(raptorQ,rSEcSize,numRSEc);
+        List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
+        bitSetListToImages(rSBitSet,outputDirectoryPath,config);
+    }
+    private void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
+        for(int i=0;i<dataList.size();i++){
+            BitSet dataBitSet=dataList.get(i);
             BitContent dataContent=new BitContent(dataBitSet);
             reconfigure(config,i);
             Barcode barcode=new Barcode(i,config);
@@ -92,6 +79,40 @@ public class ShiftCode {
                 e.printStackTrace();
             }
         }
+    }
+    private List<BitSet> intArrayListToBitSetList(List<int[]> dataList,int bitsPerInt){
+        List<BitSet> bitSetList=new LinkedList<>();
+
+        for(int[] data:dataList){
+            BitSet dataBitSet=Utils.intArrayToBitSet(data,bitsPerInt);
+            bitSetList.add(dataBitSet);
+
+/*            byte[] converted=Utils.intArrayToByteArray(data,rSEcSize);
+            BitSet dataBitSet=BitSet.valueOf(converted);
+            rSBitSet.add(dataBitSet);*/
+        }
+        return bitSetList;
+    }
+    private List<int[]> reedSolomonEncode(List<byte[]> dataList,int ecSize,int numEc){
+        List<int[]> encodedList=new LinkedList<>();
+        for(byte[] data:dataList){
+            int[] converted=Utils.byteArrayToIntArray(data,ecSize);
+            int[] encoded=Utils.rSEncode(converted,numEc,ecSize);
+            encodedList.add(encoded);
+        }
+        return encodedList;
+    }
+    private List<byte[]> raptorQEncode(byte[] array,FECParameters parameters,float redundancy,boolean isReplaceLastSourcePacketAsRepair){
+        return Utils.raptorQEncode(array,parameters,redundancy,isReplaceLastSourcePacketAsRepair);
+    }
+    private byte[] getInputFileBytes(String inputFilePath){
+        byte[] inputFileArray;
+        try {
+            inputFileArray=Utils.fileToByteArray(inputFilePath);
+        } catch (IOException e) {
+            throw new RuntimeException("input file "+inputFilePath+" not found");
+        }
+        return inputFileArray;
     }
     private BarcodeConfig configureTopBar(BarcodeConfig config,int data){
         BitSet topBarBitSet=Utils.intWithCRC8Checksum(data);
