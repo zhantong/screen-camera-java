@@ -7,31 +7,20 @@ import java.util.*;
  * Created by zhantong on 2016/11/19.
  */
 public class ShiftCode {
-    ShiftCodeConfig config;
-    int rSEcSize;
-    float rSEcLevel;
-    int numRSEc;
+    BarcodeConfig config;
+    Map<EncodeHintType,?> hints;
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.2);
-        ShiftCode shiftCode=new ShiftCode(hints);
+        hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
+        ShiftCode shiftCode=new ShiftCode(new ShiftCodeConfig(),hints);
         shiftCode.toImages("/Users/zhantong/Desktop/phpinfo.txt","/Users/zhantong/Desktop/out");
     }
-    public ShiftCode(Map<EncodeHintType,?> hints){
-        config=new ShiftCodeConfig();
+    public ShiftCode(BarcodeConfig config,Map<EncodeHintType,?> hints){
+        this.config=config;
+        this.hints=hints;
 
-        rSEcSize=12;
-        rSEcLevel=0.2f;
-        if(hints!=null){
-            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_SIZE)){
-                rSEcSize=Integer.parseInt(hints.get(EncodeHintType.RS_ERROR_CORRECTION_SIZE).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_LEVEL)){
-                rSEcLevel=Float.parseFloat(hints.get(EncodeHintType.RS_ERROR_CORRECTION_LEVEL).toString());
-            }
-        }
-        numRSEc=calcEcNum(rSEcLevel);
         BitSet rightBarBitSet=new BitSet();
         for(int i=0;i<config.mainHeight;i+=2){
             rightBarBitSet.set(i);
@@ -41,20 +30,36 @@ public class ShiftCode {
         config.borderContent.set(District.RIGHT,rightBarContent);
     }
     private void toImages(String inputFilePath,String outputDirectoryPath){
+        int rSEcSize=12;
+        float rSEcLevel=0.2f;
         int NUMBER_OF_SOURCE_BLOCKS=1;
+        float raptorQRedundancy=0.5f;
+        if(hints!=null){
+            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_SIZE)){
+                rSEcSize=Integer.parseInt(hints.get(EncodeHintType.RS_ERROR_CORRECTION_SIZE).toString());
+            }
+            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_LEVEL)){
+                rSEcLevel=Float.parseFloat(hints.get(EncodeHintType.RS_ERROR_CORRECTION_LEVEL).toString());
+            }
+            if(hints.containsKey(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS)){
+                NUMBER_OF_SOURCE_BLOCKS=Integer.parseInt(hints.get(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS).toString());
+            }
+            if(hints.containsKey(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT)){
+                raptorQRedundancy=Float.parseFloat(hints.get(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT).toString());
+            }
+        }
+        int numRSEc=calcEcNum(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize,rSEcLevel);
         byte[] inputFileArray=new byte[1];
         try {
             inputFileArray=Utils.fileToByteArray(inputFilePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        BitSet topBarBitSet=Utils.intWithCRC8Checksum(inputFileArray.length);
-        BitContent topBarContent=new BitContent(topBarBitSet);
-        config.borderContent.set(District.UP,topBarContent);
+        configureTopBar(config,inputFileArray.length);
 
-        int numDataBytes = config.mainBlock.get(District.MAIN).getBitsPerUnit()*config.mainWidth*config.mainHeight / 8 - rSEcSize * numRSEc / 8 - 8;
+        int numDataBytes = calcNumDataBytes(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize,numRSEc);
         FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);
-        List<byte[]> raptorQ=Utils.raptorQEncode(inputFileArray,parameters,0.5f,true);
+        List<byte[]> raptorQ=Utils.raptorQEncode(inputFileArray,parameters,raptorQRedundancy,true);
         List<int[]> rS=new LinkedList<>();
         for(byte[] data:raptorQ){
             int[] converted=Utils.byteArrayToIntArray(data,rSEcSize);
@@ -73,19 +78,10 @@ public class ShiftCode {
 
         }
 
-        BitSet leftBarBitSet=new BitSet();
-        leftBarBitSet.set(0);
-        leftBarBitSet.set(config.mainHeight-1);
-        BitContent leftBarContentEven=new BitContent(leftBarBitSet);
-        BitContent leftBarContentOdd=new BitContent(BitContent.ALL_ZEROS);
         for(int i=0;i<rSBitSet.size();i++){
             BitSet dataBitSet=rSBitSet.get(i);
             BitContent dataContent=new BitContent(dataBitSet);
-            if(i%2==0) {
-                config.borderContent.set(District.LEFT, leftBarContentEven);
-            }else{
-                config.borderContent.set(District.LEFT, leftBarContentOdd);
-            }
+            reconfigure(config,i);
             Barcode barcode=new Barcode(i,config);
             barcode.districts.get(Districts.MAIN).get(District.MAIN).addContent(dataContent);
             Image image=barcode.toImage();
@@ -97,7 +93,29 @@ public class ShiftCode {
             }
         }
     }
-    protected int calcEcNum(float ecLevel){
-        return ((int)((config.mainBlock.get(District.MAIN).getBitsPerUnit()*config.mainWidth*config.mainHeight/rSEcSize)*ecLevel))/2*2;
+    private BarcodeConfig configureTopBar(BarcodeConfig config,int data){
+        BitSet topBarBitSet=Utils.intWithCRC8Checksum(data);
+        BitContent topBarContent=new BitContent(topBarBitSet);
+        config.borderContent.set(District.UP,topBarContent);
+        return config;
+    }
+    private int calcNumDataBytes(int width,int height,int bitsPerUnit,int rSEcSize,int numRSEc){
+        return bitsPerUnit*width*height / 8 - rSEcSize * numRSEc / 8 - 8;
+    }
+    protected BarcodeConfig reconfigure(BarcodeConfig config,int barcodeIndex){
+        if(barcodeIndex%2==0) {
+            BitSet leftBarBitSet=new BitSet();
+            leftBarBitSet.set(0);
+            leftBarBitSet.set(config.mainHeight-1);
+            BitContent leftBarContentEven=new BitContent(leftBarBitSet);
+            config.borderContent.set(District.LEFT, leftBarContentEven);
+        }else{
+            BitContent leftBarContentOdd=new BitContent(BitContent.ALL_ZEROS);
+            config.borderContent.set(District.LEFT, leftBarContentOdd);
+        }
+        return config;
+    }
+    protected static int calcEcNum(int width,int height,int bitsPerUnit,int rSEcSize,float rSEcLevel){
+        return ((int)((bitsPerUnit*width*height/rSEcSize)*rSEcLevel))/2*2;
     }
 }

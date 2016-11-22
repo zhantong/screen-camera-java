@@ -177,18 +177,14 @@ public class Barcode {
         int blockLengthInPixels=config.blockLengthInPixel;
         Image image=new Image(districts.get(Districts.MARGIN).get(District.RIGHT).endInBlockX()*blockLengthInPixels,districts.get(Districts.MARGIN).get(District.DOWN).endInBlockY()*blockLengthInPixels);
 
-        int countDistrict=0;
         Iterator<District> districtItr=districts.iterator();
         while(districtItr.hasNext()){
-            System.out.println("count district: "+countDistrict++);
             District district=districtItr.next();
-            int countZone=0;
             Iterator<Zone> zoneItr=district.iterator();
             while(zoneItr.hasNext()){
                 Zone zone=zoneItr.next();
                 if(zone!=null&&zone.getContent()!=null){
                     zone.toImage(image,blockLengthInPixels,index);
-                    System.out.println("count zone: "+countZone++);
                 }
             }
         }
