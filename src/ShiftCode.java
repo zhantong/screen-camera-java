@@ -12,10 +12,10 @@ public class ShiftCode {
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.2);
+        hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         ShiftCode shiftCode=new ShiftCode(new ShiftCodeConfig(),hints);
-        shiftCode.toImages("/Users/zhantong/Desktop/phpinfo.txt","/Users/zhantong/Desktop/out");
+        shiftCode.toImages("/Users/zhantong/Downloads/sample1.txt","/Users/zhantong/Desktop/sample1_ShiftCode");
     }
     public ShiftCode(BarcodeConfig config,Map<EncodeHintType,?> hints){
         this.config=config;
@@ -52,12 +52,14 @@ public class ShiftCode {
                 isReplaceLastSourcePacketAsRepair=Boolean.parseBoolean(hints.get(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR).toString());
             }
         }
-        int numRSEc=calcEcNum(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize,rSEcLevel);
+        int numRS=calcNumRS(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize);
+        int numRSEc= calcNumRSEc(numRS,rSEcLevel);
+        int numRSData=calcNumRSData(numRS,numRSEc);
         byte[] inputFileArray=getInputFileBytes(inputFilePath);
 
         configureTopBar(config,inputFileArray.length);
 
-        int numDataBytes = calcNumDataBytes(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize,numRSEc);
+        int numDataBytes = calcNumDataBytes(numRSData,rSEcSize);
         FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);
         List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
         List<int[]> rS=reedSolomonEncode(raptorQ,rSEcSize,numRSEc);
@@ -80,7 +82,7 @@ public class ShiftCode {
             }
         }
     }
-    private List<BitSet> intArrayListToBitSetList(List<int[]> dataList,int bitsPerInt){
+    protected List<BitSet> intArrayListToBitSetList(List<int[]> dataList,int bitsPerInt){
         List<BitSet> bitSetList=new LinkedList<>();
 
         for(int[] data:dataList){
@@ -120,9 +122,6 @@ public class ShiftCode {
         config.borderContent.set(District.UP,topBarContent);
         return config;
     }
-    private int calcNumDataBytes(int width,int height,int bitsPerUnit,int rSEcSize,int numRSEc){
-        return bitsPerUnit*width*height / 8 - rSEcSize * numRSEc / 8 - 8;
-    }
     protected BarcodeConfig reconfigure(BarcodeConfig config,int barcodeIndex){
         if(barcodeIndex%2==0) {
             BitSet leftBarBitSet=new BitSet();
@@ -136,7 +135,16 @@ public class ShiftCode {
         }
         return config;
     }
-    protected static int calcEcNum(int width,int height,int bitsPerUnit,int rSEcSize,float rSEcLevel){
-        return ((int)((bitsPerUnit*width*height/rSEcSize)*rSEcLevel))/2*2;
+    protected static int calcNumRSEc(int numRS, float rSEcLevel){
+        return (int)Math.floor(numRS*rSEcLevel);
+    }
+    protected static int calcNumRS(int width,int height,int bitsPerUnit,int rSEcSize){
+        return bitsPerUnit*width*height/rSEcSize;
+    }
+    protected static int calcNumRSData(int numRS,int numRSEc){
+        return numRS-numRSEc;
+    }
+    protected static int calcNumDataBytes(int numRSData,int rSEcSize){
+        return numRSData*rSEcSize/8-8;
     }
 }
