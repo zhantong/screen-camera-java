@@ -10,10 +10,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by zhantong on 2016/11/17.
@@ -178,5 +175,40 @@ public class Utils {
         while ((line = br.readLine()) != null)
             sb.append(line).append("\n");
         return sb.toString();
+    }
+    public static List<BitSet> randomBitSetList(int bitSetLength,int listLength,int randomSeed){
+        List<BitSet> bitSets=new ArrayList<>(listLength);
+        Random random=new Random(randomSeed);
+        for(int i=0;i<listLength;i++){
+            BitSet bitSet=new BitSet(bitSetLength);
+            for(int pos=0;pos<bitSetLength;pos++){
+                if(random.nextBoolean()){
+                    bitSet.set(pos);
+                }
+            }
+            bitSets.add(bitSet);
+        }
+        return bitSets;
+    }
+    /*
+    public static int[] YUVToRGB(int y,int u,int v){
+        int r=Math.round(1.164f * (y - 16) + 1.596f * (v - 128));
+        int g= Math.round(1.164f * (y - 16) - 0.813f * (v - 128) - 0.391f * (u - 128));
+        int b = Math.round(1.164f * (y - 16) + 2.018f * (u - 128));
+        r = r < 0 ? 0 : (r > 255 ? 255 : r);
+        g = g < 0 ? 0 : (g > 255 ? 255 : g);
+        b = b < 0 ? 0 : (b > 255 ? 255 : b);
+        return new int[]{r,g,b};
+    }
+    */
+    public static int[] YUVToRGB(int y,int u,int v){
+        int delta=128;
+        int r=Math.round(y+1.403f*(u-delta));
+        int g= Math.round(y-0.714f*(u-delta)-0.344f*(v-delta));
+        int b = Math.round(y+1.773f*(v-delta));
+        r = r < 0 ? 0 : (r > 255 ? 255 : r);
+        g = g < 0 ? 0 : (g > 255 ? 255 : g);
+        b = b < 0 ? 0 : (b > 255 ? 255 : b);
+        return new int[]{r,g,b};
     }
 }
