@@ -5,14 +5,16 @@ import java.awt.*;
  */
 public class BlackWhiteBlock implements Block{
     public void draw(Image image,int x,int y,int width,int height,int value,int barcodeIndex,int column,int row){
-        Color color=null;
+        CustomColor color;
         switch (value){
             case 0:
-                color=Color.BLACK;
+                color=CustomColor.BLACK;
                 break;
             case 1:
-                color=Color.WHITE;
+                color=CustomColor.WHITE;
                 break;
+            default:
+                throw new IllegalArgumentException();
         }
         image.fillRect(x,y,width,height,color);
     }

@@ -32,9 +32,9 @@ public class Barcode {
 
         barcode.districts.get(Districts.MAIN).get(District.MAIN).addContent(data);
 
-        Image image= barcode.toImage();
+        Image image= barcode.toImage(0);
         try {
-            image.save("png","test.png");
+            image.save(0,"./");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -173,9 +173,19 @@ public class Barcode {
         }
         districts.get(Districts.MAIN).get(District.MAIN).addBlock(config.mainBlock.get(District.MAIN));
     }
-    public Image toImage(){
+    public Image toImage(int imageType){
         int blockLengthInPixels=config.blockLengthInPixel;
-        Image image=new Image(districts.get(Districts.MARGIN).get(District.RIGHT).endInBlockX()*blockLengthInPixels,districts.get(Districts.MARGIN).get(District.DOWN).endInBlockY()*blockLengthInPixels);
+        Image image;
+        switch (imageType){
+            case 0:
+                image=new ImageRGB(districts.get(Districts.MARGIN).get(District.RIGHT).endInBlockX()*blockLengthInPixels,districts.get(Districts.MARGIN).get(District.DOWN).endInBlockY()*blockLengthInPixels);
+                break;
+            case 1:
+                image=new ImageYUV(districts.get(Districts.MARGIN).get(District.RIGHT).endInBlockX()*blockLengthInPixels,districts.get(Districts.MARGIN).get(District.DOWN).endInBlockY()*blockLengthInPixels);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
 
         Iterator<District> districtItr=districts.iterator();
         while(districtItr.hasNext()){

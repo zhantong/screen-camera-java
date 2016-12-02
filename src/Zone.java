@@ -1,6 +1,3 @@
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
 /**
  * Created by zhantong on 2016/11/17.
  */
@@ -37,10 +34,10 @@ public class Zone {
     public BitContent getContent(){
         return content;
     }
-    public void toImage(Image image,int blockLengthInPixel,int barcodeIndex){
+    public void toImage(Image image, int blockLengthInPixel, int barcodeIndex){
         toImage(image,block,blockLengthInPixel,barcodeIndex);
     }
-    public void toImage(Image image,Block block,int blockLengthInPixel,int barcodeIndex){
+    public void toImage(Image image, Block block, int blockLengthInPixel, int barcodeIndex){
         int pos=0;
         int blockWidthInPixel=blockLengthInPixel;
         int blockHeightInPixel=blockLengthInPixel;
