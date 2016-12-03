@@ -5,5 +5,6 @@ import java.io.IOException;
  */
 public interface Image {
     void fillRect(int x,int y, int width,int height,CustomColor color);
+    void fillRect(int x,int y, int width,int height,CustomColor color,int channel);
     void save(int index,String directoryPath) throws IOException;
 }

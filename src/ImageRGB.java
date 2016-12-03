@@ -23,6 +23,11 @@ public class ImageRGB implements Image{
     }
 
     @Override
+    public void fillRect(int x, int y, int width, int height, CustomColor color, int channel) {
+
+    }
+
+    @Override
     public void save(int index, String directoryPath) throws IOException{
         g.dispose();
         image.flush();
