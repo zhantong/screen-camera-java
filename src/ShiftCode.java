@@ -15,7 +15,7 @@ public class ShiftCode {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         ShiftCode shiftCode=new ShiftCode(new ShiftCodeConfig(),hints);
-        shiftCode.toImages("/Users/zhantong/Downloads/sample1.txt","/Users/zhantong/Desktop/ShiftCode");
+        shiftCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample1.txt","/Users/zhantong/Desktop/ShiftCodeSample1");
     }
     public ShiftCode(BarcodeConfig config,Map<EncodeHintType,?> hints){
         this.config=config;
@@ -67,14 +67,15 @@ public class ShiftCode {
         List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
-    private void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
+    protected void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
         for(int i=0;i<dataList.size();i++){
             BitSet dataBitSet=dataList.get(i);
             BitContent dataContent=new BitContent(dataBitSet);
             reconfigure(config,i);
             Barcode barcode=new Barcode(i,config);
             barcode.districts.get(Districts.MAIN).get(District.MAIN).addContent(dataContent);
-            Image image=barcode.toImage(0);
+            //Image image=barcode.toImage(0);
+            Image image=barcode.toImage(1);
             try {
                 image.save(i,outputDirectoryPath);
             } catch (IOException e) {
@@ -98,7 +99,6 @@ public class ShiftCode {
     private List<int[]> reedSolomonEncode(List<byte[]> dataList,int ecSize,int numEc){
         List<int[]> encodedList=new LinkedList<>();
         for(byte[] data:dataList){
-            System.out.println("RaptorQ encoded data: "+Arrays.toString(data));
             int[] converted=Utils.byteArrayToIntArray(data,ecSize);
             int[] encoded=Utils.rSEncode(converted,numEc,ecSize);
             encodedList.add(encoded);

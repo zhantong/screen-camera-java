@@ -14,24 +14,9 @@ public class ShiftCodeColor extends ShiftCode {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.3);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         ShiftCodeColor shiftCodeColor=new ShiftCodeColor(new ShiftCodeColorConfig(),hints);
-        shiftCodeColor.toImages("/Users/zhantong/Downloads/sample1.txt","/Users/zhantong/Desktop/ShiftCodeColor4");
+        shiftCodeColor.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample3.txt","/Users/zhantong/Desktop/ShiftCodeColor6");
     }
     public ShiftCodeColor(BarcodeConfig config, Map<EncodeHintType, ?> hints) {
         super(config, hints);
-    }
-    protected void bitSetListToImages(List<BitSet> dataList, String outputDirectoryPath, BarcodeConfig config){
-        for(int i=0;i<dataList.size();i++){
-            BitSet dataBitSet=dataList.get(i);
-            BitContent dataContent=new BitContent(dataBitSet);
-            reconfigure(config,i);
-            Barcode barcode=new Barcode(i,config);
-            barcode.districts.get(Districts.MAIN).get(District.MAIN).addContent(dataContent);
-            Image image=barcode.toImage(1);
-            try {
-                image.save(i,outputDirectoryPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
