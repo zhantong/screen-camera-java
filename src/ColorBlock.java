@@ -13,10 +13,12 @@ public class ColorBlock implements Block {
                 color=CustomColor.Y0U0V0;
                 break;
             case 1:
-                color=CustomColor.Y1U0V0;
+                color=CustomColor.Y1U1V1;
                 break;
         }
         image.fillRect(x,y,width,height,color,0);
+        image.fillRect(x,y,width,height,color,1);
+        //image.fillRect(x,y,width,height,color,2);
     }
 
     public int getBitsPerUnit() {
