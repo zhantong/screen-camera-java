@@ -16,7 +16,7 @@ public class BarcodeConfig {
 
     public int blockLengthInPixel=4;
 
-    public DistrictConfig<Block> marginBlock=new DistrictConfig<>(new BlackWhiteBlock());
+    public DistrictConfig<Block> marginBlock=new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
     /*
     public DistrictConfig<Block> marginBlock=new DistrictConfig<>(new BlackWhiteBlock(),
             new BlackWhiteBlock(),
@@ -28,7 +28,7 @@ public class BarcodeConfig {
             new BlackWhiteBlock());
     */
 
-    public DistrictConfig<Block> borderBlock=new DistrictConfig<>(new BlackWhiteBlock());
+    public DistrictConfig<Block> borderBlock=new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
     /*
     public DistrictConfig<Block> borderBlock=new DistrictConfig<>(new BlackWhiteBlock(),
             new BlackWhiteBlock(),
@@ -40,7 +40,7 @@ public class BarcodeConfig {
             new BlackWhiteBlock());
     */
 
-    public DistrictConfig<Block> paddingBlock=new DistrictConfig<>(new BlackWhiteBlock());
+    public DistrictConfig<Block> paddingBlock=new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
     /*
     public DistrictConfig<Block> paddingBlock=new DistrictConfig<>(new BlackWhiteBlock(),
             new BlackWhiteBlock(),
@@ -52,7 +52,7 @@ public class BarcodeConfig {
             new BlackWhiteBlock());
     */
 
-    public DistrictConfig<Block> mainBlock=new DistrictConfig<>(new BlackWhiteBlock());
+    public DistrictConfig<Block> mainBlock=new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
 
     public DistrictConfig<BitContent> marginContent=new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
     /*

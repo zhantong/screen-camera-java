@@ -12,8 +12,8 @@ public class ShiftCodeMLConfig extends BarcodeConfig {
 
         blockLengthInPixel = 10;
 
-        marginBlock = new DistrictConfig<>(new BlackWhiteBlock());
-        borderBlock = new DistrictConfig<>(new BlackWhiteBlock());
+        marginBlock = new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
+        borderBlock = new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
         mainBlock = new DistrictConfig<>(new ShiftBlock());
 
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));

@@ -12,19 +12,21 @@ public class ShiftCodeColorConfig extends BarcodeConfig {
 
         blockLengthInPixel = 20;
 
-        marginBlock = new DistrictConfig<>(new BlackWhiteBlock());
+        CustomColor black=CustomColor.YmU0V0;
+        CustomColor white=CustomColor.YmU1V1;
+        marginBlock = new DistrictConfig<>(new BlackWhiteBlock(black,white));
         //borderBlock = new DistrictConfig<>(new BlackWhiteBlock());
         borderBlock=new DistrictConfig<>(
-                new BlackWhiteBlock(),
-                new BlackWhiteBlock(),
-                new ColorBlock(1),
-                new BlackWhiteBlock(),
-                new BlackWhiteBlock(),
-                new BlackWhiteBlock(),
-                new BlackWhiteBlock(),
-                new BlackWhiteBlock()
+                new BlackWhiteBlock(black,white),
+                new BlackWhiteBlock(black,white),
+                new ColorBlock(1,new CustomColor[]{CustomColor.YmU0V0,CustomColor.YmU1V1}),
+                new BlackWhiteBlock(black,white),
+                new BlackWhiteBlock(black,white),
+                new BlackWhiteBlock(black,white),
+                new BlackWhiteBlock(black,white),
+                new BlackWhiteBlock(black,white)
         );
-        mainBlock = new DistrictConfig<>(new ColorShiftBlock(2));
+        mainBlock = new DistrictConfig<>(new ColorShiftBlock(new int[]{1,2}));
 
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));

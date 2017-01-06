@@ -28,11 +28,11 @@ public class ShiftBlock implements Block {
                 littleOffsetY=0.2f;
                 break;
         }
-        CustomColor backgroundColor=CustomColor.BLACK;
-        CustomColor foregroundColor=CustomColor.WHITE;
+        CustomColor backgroundColor=CustomColor.Y0UmVm;
+        CustomColor foregroundColor=CustomColor.Y1UmVm;
         if((column+row+barcodeIndex)%2!=0){
-            backgroundColor=CustomColor.WHITE;
-            foregroundColor=CustomColor.BLACK;
+            backgroundColor=CustomColor.Y1UmVm;
+            foregroundColor=CustomColor.Y0UmVm;
         }
         image.fillRect(x,y,width,height, backgroundColor);
         image.fillRect(x+Math.round(littleOffsetX*width),y+Math.round(littleOffsetY*height),littleWidth,littleHeight,foregroundColor);
