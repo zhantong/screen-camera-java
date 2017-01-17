@@ -18,7 +18,7 @@ public class ColorShiftBlock implements Block {
         }else {
             values = new int[]{value >> 4, (value >> 2) & 0x03, value & 0x03};
         }
-        image.fillRect(x, y, width, height,CustomColor.YmU0V0,0);
+        image.fillRect(x, y, width, height,CustomColor.Y1U0V0,0);
         for(int channelIndex=0;channelIndex<channels.length;channelIndex++){
             float littleOffsetX = 0;
             float littleOffsetY = 0;
@@ -45,7 +45,7 @@ public class ColorShiftBlock implements Block {
 
             backgroundColor = CustomColor.Y1U0V0;
             foregroundColor = CustomColor.Y1U1V1;
-            if ((column + row + barcodeIndex) % 2 != 0) {
+            if (barcodeIndex % 2 != 0) {
                 backgroundColor = CustomColor.Y1U1V1;
                 foregroundColor = CustomColor.Y1U0V0;
             }
