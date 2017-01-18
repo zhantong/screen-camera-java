@@ -3,9 +3,9 @@
  */
 public class ShiftCodeColorConfig extends BarcodeConfig {
     public ShiftCodeColorConfig() {
-        marginLength = new DistrictConfig<>(8);
+        marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
-        paddingLength = new DistrictConfig<>(0);
+        paddingLength = new DistrictConfig<>(1);
 
         mainWidth = 40;
         mainHeight = 40;
@@ -14,9 +14,10 @@ public class ShiftCodeColorConfig extends BarcodeConfig {
 
         CustomColor black=CustomColor.Y1U0V0;
         CustomColor white=CustomColor.Y1U1V1;
-        marginBlock = new DistrictConfig<>(new BlackWhiteBlock(black,CustomColor.Y0U1V1));
+        marginBlock = new DistrictConfig<>(new BlackWhiteBlock(black,CustomColor.Y1UmVm));
         //borderBlock = new DistrictConfig<>(new BlackWhiteBlock());
-        borderBlock=new DistrictConfig<>(
+        borderBlock=new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
+        paddingBlock=new DistrictConfig<>(
                 new BlackWhiteBlock(black,white),
                 new BlackWhiteBlock(black,white),
                 new ColorBlock(1,new CustomColor[]{CustomColor.Y1U0V0,CustomColor.Y1U1V1}),
@@ -26,9 +27,11 @@ public class ShiftCodeColorConfig extends BarcodeConfig {
                 new BlackWhiteBlock(black,white),
                 new BlackWhiteBlock(black,white)
         );
+
         mainBlock = new DistrictConfig<>(new ColorShiftBlock(new int[]{1,2}));
 
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
+        paddingContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
     }
 }

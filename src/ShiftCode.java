@@ -15,7 +15,7 @@ public class ShiftCode {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         ShiftCode shiftCode=new ShiftCode(new ShiftCodeConfig(),hints);
-        shiftCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample1.txt","/Users/zhantong/Desktop/ShiftCodeSample1");
+        shiftCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample1.txt","/Users/zhantong/Desktop/ShiftCode1");
     }
     public ShiftCode(BarcodeConfig config,Map<EncodeHintType,?> hints){
         this.config=config;
@@ -117,7 +117,7 @@ public class ShiftCode {
         }
         return inputFileArray;
     }
-    private BarcodeConfig configureTopBar(BarcodeConfig config,int data){
+    protected BarcodeConfig configureTopBar(BarcodeConfig config,int data){
         BitSet topBarBitSet=Utils.intWithCRC8Checksum(data);
         BitContent topBarContent=new BitContent(topBarBitSet);
         config.borderContent.set(District.UP,topBarContent);
