@@ -9,6 +9,7 @@ import java.util.*;
 public class ShiftCode {
     BarcodeConfig config;
     Map<EncodeHintType,?> hints;
+    int inputFileSizeInByte=0;
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
@@ -58,6 +59,7 @@ public class ShiftCode {
         byte[] inputFileArray=getInputFileBytes(inputFilePath);
 
         configureTopBar(config,inputFileArray.length);
+        inputFileSizeInByte=inputFileArray.length;
 
         int numDataBytes = calcRaptorQSymbolSize(calcRaptorQPacketSize(numRSData,rSEcSize));
         FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);

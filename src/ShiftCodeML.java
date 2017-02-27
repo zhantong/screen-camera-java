@@ -14,7 +14,7 @@ public class ShiftCodeML extends ShiftCode {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         ShiftCodeML shiftCodeML=new ShiftCodeML(new ShiftCodeMLConfig(),hints);
-        shiftCodeML.toImages("/Users/zhantong/Downloads/sample1.txt","/Users/zhantong/Desktop/ShiftCodeML_40_0.1");
+        shiftCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample1.txt","/Users/zhantong/Desktop/ShiftCodeML2");
     }
     public ShiftCodeML(BarcodeConfig config, Map<EncodeHintType, ?> hints) {
         super(config, hints);
@@ -41,8 +41,16 @@ public class ShiftCodeML extends ShiftCode {
             bottomBarBitSet.set(0);
             BitContent bottomBarContent=new BitContent(bottomBarBitSet);
             config.borderContent.set(District.DOWN,bottomBarContent);
+
+            BitSet topBarBitSet=Utils.intWithCRC8Checksum(barcodeIndex);
+            BitContent topBarContent=new BitContent(topBarBitSet);
+            config.borderContent.set(District.UP,topBarContent);
         }else {
             config.borderContent.set(District.DOWN,new BitContent(BitContent.ALL_ZEROS));
+
+            BitSet topBarBitSet=Utils.intWithCRC8Checksum(inputFileSizeInByte);
+            BitContent topBarContent=new BitContent(topBarBitSet);
+            config.borderContent.set(District.UP,topBarContent);
         }
         return config;
     }
