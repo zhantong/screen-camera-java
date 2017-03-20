@@ -6,9 +6,10 @@ public class ShiftCodeColorConfig extends BarcodeConfig {
         marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
         paddingLength = new DistrictConfig<>(1);
+        metaLength = new DistrictConfig<>(2,0,2,0);
 
-        mainWidth = 40;
-        mainHeight = 40;
+        mainWidth = 20;
+        mainHeight = 20;
 
         blockLengthInPixel = 20;
 
@@ -27,11 +28,13 @@ public class ShiftCodeColorConfig extends BarcodeConfig {
                 new BlackWhiteBlock(black,white),
                 new BlackWhiteBlock(black,white)
         );
+        metaBlock=new DistrictConfig<>(new BlackWhiteBlock(CustomColor.Y0UmVm,CustomColor.Y1UmVm));
 
         mainBlock = new DistrictConfig<>(new ColorShiftBlock(new int[]{1,2}));
 
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
         paddingContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
+        metaContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
     }
 }
