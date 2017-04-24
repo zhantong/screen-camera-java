@@ -1,114 +1,235 @@
 import java.io.*;
-import java.util.Map;
 
 /**
  * Created by zhantong on 16/3/17.
  */
 public class ImagesToVideo {
-    private int imageFrameRate=1;
-    private int videoFrameRate=30;
-    private int startNumber=0;
-    private boolean forceOverWrite=false;
-    private File inputDirectory;
-    private File outputDirectory;
-    private String videoFileName=null;
-    private String imageFileNameReg=null;
-    private String ffmpegPath =null;
+    private String workingDirectory;
+    private ProcessBuilder builder;
 
-    public static void main(String[] args){
-        ImagesToVideo toVideo=new ImagesToVideo(new File("/Users/zhantong/Desktop/out"),"%06d.png");
-        toVideo.setImageFrameRate(0);
-        toVideo.setForceOverWrite(true);
-        try {
-            boolean returnValue=toVideo.run();
-            if(returnValue){
-                System.out.println("success");
-            }else{
-                System.out.println("failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static void main(String[] args) {
+        ImagesToVideo imagesToVideo;
+        if (true) {
+            imagesToVideo = new ImagesToVideo.YUVImageBuilder()
+                    .setWorkdingDirectory("/Users/zhantong/Desktop/ShiftCodeColorML6")
+                    .setInputResolution("2000x1880")
+                    .setInputFrameRate("22")
+                    .setInputFilePath("all.yuv")
+                    .setOutputFilePath("40_0.1_22.mp4")
+                    .build();
         }
-
-    }
-    public ImagesToVideo(File inputDirectory,String imageFileNameReg,int imageFrameRate){
-        this(inputDirectory,imageFileNameReg);
-        setImageFrameRate(imageFrameRate);
-    }
-    public ImagesToVideo(File inputDirectory,String imageFileNameReg){
-        setInputDirectory(inputDirectory);
-        setImageFileNameReg(imageFileNameReg);
-    }
-    public void setInputDirectory(File inputDirectory){
-        this.inputDirectory=inputDirectory;
-        this.outputDirectory=inputDirectory;
-    }
-    public void setOutputDirectory(File outputDirectory){
-        this.outputDirectory=outputDirectory;
-    }
-    public void setImageFrameRate(int imageFrameRate){
-        this.imageFrameRate=imageFrameRate;
-    }
-    public void setVideoFrameRate(int videoFrameRate){
-        this.videoFrameRate=videoFrameRate;
-    }
-    public void setStartNumber(int startNumber){
-        this.startNumber=startNumber;
-    }
-    public void setForceOverWrite(boolean forceOverWrite){
-        this.forceOverWrite=forceOverWrite;
-    }
-    public void setVideoFileName(String videoFileName){
-        this.videoFileName=videoFileName;
-    }
-    public void setFFmpegPath(String path){
-        ffmpegPath =path;
-    }
-    public void setImageFileNameReg(String imageFileNameReg){
-        this.imageFileNameReg=imageFileNameReg;
-    }
-    public boolean run() throws IOException,InterruptedException{
-        if(inputDirectory==null||outputDirectory==null||!inputDirectory.exists()||!outputDirectory.exists()){
-            throw new IllegalArgumentException("input/output directory not set or don't exists");
+        if (false) {
+            imagesToVideo = new ImagesToVideo.CompressedImageBuilder()
+                    .setWorkdingDirectory("/Users/zhantong/Desktop/ShiftCodeColorML6")
+                    .setInputFileNameRegex("%06d.png")
+                    .setInputFrameRate("22")
+                    .setOutputFilePath("40_0.1_22.mp4")
+                    .build();
         }
-        if(imageFileNameReg==null){
-            throw new IllegalArgumentException("imageFileNameReg not set.");
-        }
-        if(videoFileName==null){
-            videoFileName=String.format("out_framerate_%d.mp4",imageFrameRate);
-        }
-        File videoFile=new File(outputDirectory,videoFileName);
-        if(videoFile.exists()&&!videoFile.isDirectory()){
-            if(forceOverWrite){
-                videoFile.delete();
-            }else {
-                throw new RuntimeException("video file already exists and force overwrite is false.");
+        if (imagesToVideo != null) {
+            try {
+                imagesToVideo.run();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        ProcessBuilder builder=new ProcessBuilder();
-        if(ffmpegPath !=null){
-            Map<String,String> env=builder.environment();
-            env.put("ffmpegPath", ffmpegPath);
-        }
+    }
 
-        builder.directory(inputDirectory);
-        builder.command("ffmpeg",
-                "-framerate",Integer.toString(imageFrameRate),
-                "-start_number",Integer.toString(startNumber),
-                "-i",imageFileNameReg,
-                "-c:v","libx264",
-                "-r",Integer.toString(videoFrameRate),
-                "-pix_fmt","yuv420p",
-                videoFile.getAbsolutePath());
+    public ImagesToVideo(String workingDirectory, ProcessBuilder builder) {
+        this.workingDirectory = workingDirectory;
+        this.builder = builder;
+    }
+
+    public boolean run() throws IOException, InterruptedException {
+        builder.directory(new File(workingDirectory));
         builder.redirectErrorStream(true);
         Process p = builder.start();
-        String output=Utils.inputStreamToString(p.getInputStream());
-        int returnValue=p.waitFor();
-        if(returnValue==0){
-            return true;
-        }
-        System.out.println("ffmpeg ended with return value "+returnValue+" output:");
+        String output = Utils.inputStreamToString(p.getInputStream());
+        int returnValue = p.waitFor();
+        System.out.println("ffmpeg ended with return value " + returnValue + " output:");
         System.out.println(output);
-        return false;
+        return returnValue == 0;
+    }
+
+    private static class Builder<T> {
+        protected String workdingDirectory = "";
+
+        public T setWorkdingDirectory(String workdingDirectory) {
+            this.workdingDirectory = workdingDirectory;
+            return (T) this;
+        }
+
+        protected void checkParams() {
+            if (workdingDirectory.isEmpty()) {
+                throw new IllegalArgumentException("empty workdingDirectory");
+            }
+        }
+    }
+
+    public static class CompressedImageBuilder extends Builder<CompressedImageBuilder> {
+        private String inputFrameRate = "15";
+        private String inputFileNameRegex = "";
+        private String inputFileStartIndex = "0";
+        private String outputFrameRate = "30";
+        private String codec = "libx264";
+        private String pixelFormat = "yuv420p";
+        private String outputFilePath = "";
+
+
+        public CompressedImageBuilder setInputFrameRate(String inputFrameRate) {
+            this.inputFrameRate = inputFrameRate;
+            return this;
+        }
+
+        public CompressedImageBuilder setInputFileNameRegex(String inputFileNameRegex) {
+            this.inputFileNameRegex = inputFileNameRegex;
+            return this;
+        }
+
+        public CompressedImageBuilder setInputFileStartIndex(String inputFileStartIndex) {
+            this.inputFileStartIndex = inputFileStartIndex;
+            return this;
+        }
+
+        public CompressedImageBuilder setOutputFrameRate(String outputFrameRate) {
+            this.outputFrameRate = outputFrameRate;
+            return this;
+        }
+
+        public CompressedImageBuilder setCodec(String codec) {
+            this.codec = codec;
+            return this;
+        }
+
+        public CompressedImageBuilder setPixelFormat(String pixelFormat) {
+            this.pixelFormat = pixelFormat;
+            return this;
+        }
+
+        public CompressedImageBuilder setOutputFilePath(String outputFilePath) {
+            this.outputFilePath = outputFilePath;
+            return this;
+        }
+
+        protected void checkParams() {
+            super.checkParams();
+            if (inputFileNameRegex.isEmpty()) {
+                throw new IllegalArgumentException("empty inputFileNameRegex");
+            }
+            if (outputFilePath.isEmpty()) {
+                throw new IllegalArgumentException("empty outputFilePath");
+            }
+        }
+
+        public ImagesToVideo build() {
+            checkParams();
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.directory(new File(workdingDirectory));
+            processBuilder.command("ffmpeg",
+                    "-framerate", inputFrameRate,
+                    "-start_number", inputFileStartIndex,
+                    "-i", inputFileNameRegex,
+                    "-c:v", codec,
+                    "-r", outputFrameRate,
+                    "-pix_fmt", pixelFormat,
+                    outputFilePath);
+            return new ImagesToVideo(workdingDirectory, processBuilder);
+        }
+    }
+
+    public static class YUVImageBuilder extends Builder<YUVImageBuilder> {
+        private String inputFilePath = "";
+        private String inputFrameRate = "15";
+        private String outputFrameRate = "30";
+        private String inputCodec = "rawvideo";
+        private String outputCodec = "libx264";
+        private String outputFileFormat = "mp4";
+        private String inputColorRange = "2";
+        private String inputResolution = "";
+        private String inputPixelFormat = "yuv420p";
+        private String outputFilePath = "";
+        private String threads = "auto";
+
+        public YUVImageBuilder setInputFilePath(String inputFilePath) {
+            this.inputFilePath = inputFilePath;
+            return this;
+        }
+
+        public YUVImageBuilder setInputFrameRate(String inputFrameRate) {
+            this.inputFrameRate = inputFrameRate;
+            return this;
+        }
+
+        public YUVImageBuilder setOutputFrameRate(String outputFrameRate) {
+            this.outputFrameRate = outputFrameRate;
+            return this;
+        }
+
+        public YUVImageBuilder setInputCodec(String inputCodec) {
+            this.inputCodec = inputCodec;
+            return this;
+        }
+
+        public YUVImageBuilder setOutputFileFormat(String outputFileFormat) {
+            this.outputFileFormat = outputFileFormat;
+            return this;
+        }
+
+        public YUVImageBuilder setInputResolution(String inputResolution) {
+            this.inputResolution = inputResolution;
+            return this;
+        }
+
+        public YUVImageBuilder setInputColorRange(String inputColorRange) {
+            this.inputColorRange = inputColorRange;
+            return this;
+        }
+
+        public YUVImageBuilder setOutputCodec(String outputCodec) {
+            this.outputCodec = outputCodec;
+            return this;
+        }
+
+        public YUVImageBuilder setInputPixelFormat(String inputPixelFormat) {
+            this.inputPixelFormat = inputPixelFormat;
+            return this;
+        }
+
+        public YUVImageBuilder setOutputFilePath(String outputFilePath) {
+            this.outputFilePath = outputFilePath;
+            return this;
+        }
+
+        protected void checkParams() {
+            super.checkParams();
+            if (inputFilePath.isEmpty()) {
+                throw new IllegalArgumentException("empty inputFilePath");
+            }
+            if (inputResolution.isEmpty()) {
+                throw new IllegalArgumentException("empty inputResolution");
+            }
+            if (outputFilePath.isEmpty()) {
+                throw new IllegalArgumentException("empty outputFilePath");
+            }
+        }
+
+        public ImagesToVideo build() {
+            checkParams();
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.directory(new File(workdingDirectory));
+            processBuilder.command("ffmpeg",
+                    "-vcodec", inputCodec,
+                    "-pix_fmt", inputPixelFormat,
+                    "-color_range", inputColorRange,
+                    "-s", inputResolution,
+                    "-r", inputFrameRate,
+                    "-i", inputFilePath,
+                    "-f", outputFileFormat,
+                    "-c:v", outputCodec,
+                    "-r", outputFrameRate,
+                    "-threads", threads,
+                    outputFilePath);
+            return new ImagesToVideo(workdingDirectory, processBuilder);
+        }
     }
 }
