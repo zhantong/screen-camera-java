@@ -7,14 +7,14 @@ import java.util.Map;
  * Created by zhantong on 2016/11/22.
  */
 public class ShiftCodeML extends ShiftCode {
-    private int numRandomBarcode=40;
+    private int numRandomBarcode=100;
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         ShiftCodeML shiftCodeML=new ShiftCodeML(new ShiftCodeMLConfig(),hints);
-        shiftCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample1.txt","/Users/zhantong/Desktop/ShiftCodeML2");
+        shiftCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample2.txt","/Users/zhantong/Desktop/ShiftCodeML2");
     }
     public ShiftCodeML(BarcodeConfig config, Map<EncodeHintType, ?> hints) {
         super(config, hints);
@@ -38,11 +38,11 @@ public class ShiftCodeML extends ShiftCode {
         }
         if(barcodeIndex<numRandomBarcode){
             BitSet bottomBarBitSet=new BitSet();
-            bottomBarBitSet.set(0);
+            bottomBarBitSet.set(2);
             BitContent bottomBarContent=new BitContent(bottomBarBitSet);
             config.borderContent.set(District.DOWN,bottomBarContent);
 
-            BitSet topBarBitSet=Utils.intWithCRC8Checksum(barcodeIndex);
+            BitSet topBarBitSet=Utils.reverse(Utils.intToBitSet(Utils.intToGrayCode(barcodeIndex),32),32);
             BitContent topBarContent=new BitContent(topBarBitSet);
             config.borderContent.set(District.UP,topBarContent);
         }else {

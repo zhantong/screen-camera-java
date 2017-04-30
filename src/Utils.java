@@ -17,12 +17,11 @@ import java.util.*;
  */
 public class Utils {
     public static void main(String[] args){
-        int[] data={1,2,3,4,5};
-        System.out.println(Arrays.toString(data));
-        BitSet bitSet=intArrayToBitSet(data,10);
-        System.out.println(bitSet.toString());
-        int[] restore=bitSetToIntArray(bitSet,50,10);
-        System.out.println(Arrays.toString(restore));
+        for(int i=0;i<20;i++){
+            int gray=intToGrayCode(i);
+            int integer=grayCodeToInt(gray);
+            System.out.println(i+" "+gray+" "+integer);
+        }
     }
     public static int bitsToInt(BitSet bitSet,int length,int offset){
         int value=0;
@@ -57,7 +56,7 @@ public class Utils {
         return bitSet;
     }
     public static int[] bitSetToIntArray(BitSet bitSet,int length,int bitsPerInt){
-        int[] array=new int[length/bitsPerInt];
+        int[] array=new int[(int)Math.ceil((float) length/bitsPerInt)];
         for(int i=0;i<length;i++){
             if(bitSet.get(i)){
                 array[i/bitsPerInt]|=1<<(i%bitsPerInt);
@@ -210,5 +209,41 @@ public class Utils {
         g = g < 0 ? 0 : (g > 255 ? 255 : g);
         b = b < 0 ? 0 : (b > 255 ? 255 : b);
         return new int[]{r,g,b};
+    }
+    public static int intToGrayCode(int n){
+        return n^(n>>1);
+    }
+    public static int grayCodeToInt(int n){
+        String gray=Integer.toBinaryString(n);
+        String binary="";
+        binary+=gray.charAt(0);
+        for(int i=1;i<gray.length();i++){
+            if(gray.charAt(i)=='0'){
+                binary+=binary.charAt(i-1);
+            }else{
+                binary+=binary.charAt(i-1)=='0'?'1':'0';
+            }
+        }
+        return Integer.parseInt(binary,2);
+    }
+    public static BitSet reverse(BitSet origin,int length){
+        BitSet reversed=new BitSet();
+        for(int i=0;i<length;i++){
+            if(origin.get(i)){
+                reversed.set(length-i-1,true);
+            }
+        }
+        return reversed;
+    }
+    public static void writeObjectToFile(Object object,String filePath){
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(object);
+            oos.close();
+            fos.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
