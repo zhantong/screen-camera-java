@@ -10,6 +10,7 @@ public class ShiftCode {
     BarcodeConfig config;
     Map<EncodeHintType,?> hints;
     int inputFileSizeInByte=0;
+    boolean saveBitSetList=true;
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
@@ -67,6 +68,9 @@ public class ShiftCode {
         List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
         List<int[]> rS=reedSolomonEncode(raptorQ,rSEcSize,numRSEc);
         List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
+        if(saveBitSetList){
+            Utils.writeObjectToFile(rSBitSet,"out.txt");
+        }
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
     protected void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
