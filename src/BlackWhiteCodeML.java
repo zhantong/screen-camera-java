@@ -1,6 +1,10 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import net.fec.openrq.parameters.FECParameters;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -18,7 +22,7 @@ public class BlackWhiteCodeML {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
         BlackWhiteCodeML blackWhiteCodeML=new BlackWhiteCodeML(new BlackWhiteCodeMLConfig(),hints);
-        blackWhiteCodeML.toImages("/Users/zhantong/Desktop/sample0.txt","/Users/zhantong/Desktop/BlackWhiteCodeML2");
+        blackWhiteCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample3.txt","/Users/zhantong/Desktop/BlackWhiteCodeML_100x100_0.1");
     }
     public BlackWhiteCodeML(BarcodeConfig config,Map<EncodeHintType,?> hints){
         this.config=config;
@@ -70,7 +74,18 @@ public class BlackWhiteCodeML {
         List<int[]> rS=reedSolomonEncode(raptorQ,rSEcSize,numRSEc);
         List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
         if(saveBitSetList){
-            Utils.writeObjectToFile(rSBitSet,"out.txt");
+            List<int[]> outputIntList=new ArrayList<>();
+            for(BitSet bitSet:rSBitSet){
+                outputIntList.add(Utils.bitSetToIntArray(bitSet,config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),config.mainBlock.get(District.MAIN).getBitsPerUnit()));
+            }
+            Gson gson=new Gson();
+            JsonObject root=new JsonObject();
+            root.add("values",gson.toJsonTree(outputIntList));
+            try(Writer writer=new FileWriter("out.txt")) {
+                gson.toJson(root, writer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
