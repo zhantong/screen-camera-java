@@ -35,4 +35,9 @@ public class ImageRGB implements Image{
         String filePath=Utils.combinePaths(directoryPath,fileName);
         ImageIO.write(image,"PNG",new File(filePath));
     }
+
+    @Override
+    public void save(int index, String directoryPath, int colorType) throws IOException {
+        save(index,directoryPath);
+    }
 }

@@ -99,7 +99,7 @@ public class BlackWhiteCodeML {
             //Image image=barcode.toImage(0);
             Image image=barcode.toImage(1);
             try {
-                image.save(i,outputDirectoryPath);
+                image.save(i,outputDirectoryPath,ImageYUV.TYPE_YUV420);
             } catch (IOException e) {
                 e.printStackTrace();
             }

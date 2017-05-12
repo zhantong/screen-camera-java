@@ -15,14 +15,9 @@ public class ImageYUV implements Image{
     private byte[] VBuffer;
     private int width;
     private int height;
-    private int colorType;
     public ImageYUV(int widthInPixel,int heightInPixel){
-        this(widthInPixel,heightInPixel,TYPE_YUV444);
-    }
-    public ImageYUV(int widthInPixel,int heightInPixel,int colorType){
         this.width=widthInPixel;
         this.height=heightInPixel;
-        this.colorType=colorType;
         int numPixels=widthInPixel*heightInPixel;
         YBuffer=new byte[numPixels];
         UBuffer=new byte[numPixels];
@@ -72,6 +67,11 @@ public class ImageYUV implements Image{
     }
 
     public void save(int index,String directoryPath) throws IOException {
+        save(index,directoryPath,TYPE_YUV444);
+    }
+
+    @Override
+    public void save(int index, String directoryPath, int colorType) throws IOException {
         String colorName;
         switch (colorType){
             case TYPE_YUV444:
