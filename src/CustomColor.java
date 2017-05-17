@@ -7,8 +7,8 @@ public class CustomColor {
     public static final CustomColor Y0U1V0=new CustomColor(0,255,0);
     public static final CustomColor Y0U1V1=new CustomColor(0,255,255);
     public static final CustomColor Y1U0V0=new CustomColor(150,0,0);
-    public static final CustomColor Y1U0V1=new CustomColor(255,0,255);
-    public static final CustomColor Y1U1V0=new CustomColor(255,255,0);
+    public static final CustomColor Y1U0V1=new CustomColor(150,0,255);
+    public static final CustomColor Y1U1V0=new CustomColor(150,255,0);
     public static final CustomColor Y1U1V1=new CustomColor(150,255,255);
     public static final CustomColor Y0UmVm=new CustomColor(0,128,128);
     public static final CustomColor Y1UmVm=new CustomColor(255,128,128);
