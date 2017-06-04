@@ -1,6 +1,10 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import net.fec.openrq.parameters.FECParameters;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -11,12 +15,13 @@ public class RDCode {
     Map<EncodeHintType,?> hints;
     int inputFileSizeInByte=0;
     boolean saveBitSetList=true;
+    private int numRandomBarcode=100;
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,8);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         RDCode rDCode=new RDCode(new RDCodeConfig(),hints);
-        rDCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample1.txt","/Users/zhantong/Desktop/RDCode1");
+        rDCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCode0");
     }
     public RDCode(RDCodeConfig config,Map<EncodeHintType,?> hints){
         this.config=config;
@@ -207,7 +212,18 @@ public class RDCode {
 
         List<BitSet> rSBitSet=intArrayListToBitSetList(rSEncoded,8);
         if(saveBitSetList){
-            Utils.writeObjectToFile(rSBitSet,"out.txt");
+            List<int[]> outputIntList=new ArrayList<>();
+            for(BitSet bitSet:rSBitSet){
+                outputIntList.add(Utils.bitSetToIntArray(bitSet,config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),config.mainBlock.get(District.MAIN).getBitsPerUnit()));
+            }
+            Gson gson=new Gson();
+            JsonObject root=new JsonObject();
+            root.add("values",gson.toJsonTree(outputIntList));
+            try(Writer writer=new FileWriter("out.txt")) {
+                gson.toJson(root, writer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
@@ -238,6 +254,8 @@ public class RDCode {
             BitSet dataBitSet=BitSet.valueOf(converted);
             rSBitSet.add(dataBitSet);*/
         }
+        List<BitSet> randomBitSetList=Utils.randomBitSetList(config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),numRandomBarcode,0);
+        bitSetList.addAll(0,randomBitSetList);
         return bitSetList;
     }
     private List<int[]> reedSolomonEncode(List<byte[]> dataList,int ecSize,int numEc){
@@ -293,11 +311,22 @@ public class RDCode {
             config.paddingContent.set(District.LEFT, paddingBarBlackWhiteContent);
             config.paddingContent.set(District.RIGHT, paddingBarBlackWhiteContent);
         }
-        config.borderContent.set(District.DOWN,new BitContent(BitContent.ALL_ZEROS));
+        if(barcodeIndex<numRandomBarcode){
+            BitSet bottomBarBitSet=new BitSet();
+            bottomBarBitSet.set(2);
+            BitContent bottomBarContent=new BitContent(bottomBarBitSet);
+            config.borderContent.set(District.DOWN,bottomBarContent);
 
-        BitSet topBarBitSet=Utils.intWithCRC8Checksum(inputFileSizeInByte);
-        BitContent topBarContent=new BitContent(topBarBitSet);
-        config.borderContent.set(District.UP,topBarContent);
+            BitSet topBarBitSet=Utils.reverse(Utils.intToBitSet(Utils.intToGrayCode(barcodeIndex),32),32);
+            BitContent topBarContent=new BitContent(topBarBitSet);
+            config.borderContent.set(District.UP,topBarContent);
+        }else {
+            config.borderContent.set(District.DOWN,new BitContent(BitContent.ALL_ZEROS));
+
+            BitSet topBarBitSet=Utils.intWithCRC8Checksum(inputFileSizeInByte);
+            BitContent topBarContent=new BitContent(topBarBitSet);
+            config.borderContent.set(District.UP,topBarContent);
+        }
         return config;
     }
     protected static int calcNumRSEc(int numRS, float rSEcLevel){
