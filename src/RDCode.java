@@ -167,6 +167,7 @@ public class RDCode {
                                 currentRegion++;
                             }
                         }
+                        System.out.println("window "+currentWindow+": ");
                         System.out.println(window);
                         currentFrame=0;
                         currentRegion=0;
@@ -304,6 +305,21 @@ public class RDCode {
                 frames[i]=new Frame(numRegionsPerFrame,numRegionBytes);
             }
         }
+        @Override
+        public String toString() {
+            StringBuilder builder=new StringBuilder();
+            builder.append('{');
+            builder.append('\n');
+            for(int i=0;i<frames.length;i++){
+                builder.append("frame ");
+                builder.append(i);
+                builder.append(": ");
+                builder.append(frames[i].toString());
+                builder.append('\n');
+            }
+            builder.append('}');
+            return builder.toString();
+        }
     }
     class Frame{
         Region[] regions;
@@ -313,11 +329,32 @@ public class RDCode {
                 regions[i]=new Region(numRegionBytes);
             }
         }
+
+        @Override
+        public String toString() {
+            StringBuilder builder=new StringBuilder();
+            builder.append('{');
+            builder.append('\n');
+            for(int i=0;i<regions.length;i++){
+                builder.append("region ");
+                builder.append(i);
+                builder.append(": ");
+                builder.append(regions[i].toString());
+                builder.append('\n');
+            }
+            builder.append('}');
+            return builder.toString();
+        }
     }
     class Region{
         int[] data;
         public Region(int numBytes){
             data=new int[numBytes];
+        }
+
+        @Override
+        public String toString() {
+            return Arrays.toString(data);
         }
     }
 }
