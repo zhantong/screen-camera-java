@@ -104,6 +104,8 @@ public class RDCode {
         int currentPosition=0;
         int currentWindow=0;
 
+        List<int[]> rSEncoded=new ArrayList<>();
+
         Random random=new Random();
         int fileIndex=0;
         while(true){
@@ -169,6 +171,27 @@ public class RDCode {
                         }
                         System.out.println("window "+currentWindow+": ");
                         System.out.println(window);
+                        for(Frame frame:window.frames){
+                            int numBytesPerFrame=frame.regions.length*frame.regions[0].data.length;
+                            int numBytesPerRegionLine=config.mainBlock.get(District.MAIN).getBitsPerUnit()*config.regionWidth/8;
+                            int numBytesPerRegion=numBytesPerRegionLine*config.regionHeight;
+                            if(numBytesPerFrame!=numBytesPerRegion*config.numRegionVertical*config.numRegionHorizon){
+                                throw new IllegalArgumentException();
+                            }
+                            int[] frameData=new int[numBytesPerFrame];
+                            int frameDataPos=0;
+                            for(int indexRegionOffset=0;indexRegionOffset<numRegions;indexRegionOffset+=config.numRegionHorizon){
+                                for(int pos=0;pos<numBytesPerRegion;pos+=numBytesPerRegionLine){
+                                    for(int indexRegionInLine=0;indexRegionInLine<config.numRegionHorizon;indexRegionInLine++){
+                                        int indexRegion=indexRegionOffset+indexRegionInLine;
+                                        System.arraycopy(frame.regions[indexRegion].data,pos,frameData,frameDataPos,numBytesPerRegionLine);
+                                        frameDataPos+=numBytesPerRegionLine;
+                                    }
+                                }
+                            }
+                            rSEncoded.add(frameData);
+                            System.out.println(Arrays.toString(frameData));
+                        }
                         currentFrame=0;
                         currentRegion=0;
                         window=new Window(8,numRegions,numRegionBytes);
@@ -179,19 +202,14 @@ public class RDCode {
         }
 
 
-/*        configureTopBar(config,inputFileArray.length);
+        configureTopBar(config,inputFileArray.length);
         inputFileSizeInByte=inputFileArray.length;
 
-        int numDataBytes = calcRaptorQSymbolSize(calcRaptorQPacketSize(numRSData,rSEcSize));
-        FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);
-        System.out.println("FECParameters: "+parameters.toString());
-        List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
-        List<int[]> rS=reedSolomonEncode(raptorQ,rSEcSize,numRSEc);
-        List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
+        List<BitSet> rSBitSet=intArrayListToBitSetList(rSEncoded,8);
         if(saveBitSetList){
             Utils.writeObjectToFile(rSBitSet,"out.txt");
         }
-        bitSetListToImages(rSBitSet,outputDirectoryPath,config);*/
+        bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
     protected void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
         for(int i=0;i<dataList.size();i++){
