@@ -133,12 +133,36 @@ public class Utils {
         }
         return rSEncode(originData,numEc,field);
     }
+    public static int[] rSEncode(int[] originData, int numEc, int ecSize,boolean isInPlace){
+        GenericGF field;
+        switch (ecSize){
+            case 12:
+                field=GenericGF.AZTEC_DATA_12;
+                break;
+            default:
+                field=GenericGF.QR_CODE_FIELD_256;
+        }
+        return rSEncode(originData,numEc,field,isInPlace);
+    }
     public static int[] rSEncode(int[] originData, int numEc, GenericGF field){
         ReedSolomonEncoder encoder=new ReedSolomonEncoder(field);
         int[] encodedData=new int[originData.length+numEc];
         System.arraycopy(originData,0,encodedData,0,originData.length);
         encoder.encode(encodedData,numEc);
         return encodedData;
+    }
+    public static int[] rSEncode(int[] originData, int numEc, GenericGF field,boolean isInplace){
+        if(isInplace){
+            ReedSolomonEncoder encoder = new ReedSolomonEncoder(field);
+            encoder.encode(originData, numEc);
+            return originData;
+        }else {
+            ReedSolomonEncoder encoder = new ReedSolomonEncoder(field);
+            int[] encodedData = new int[originData.length + numEc];
+            System.arraycopy(originData, 0, encodedData, 0, originData.length);
+            encoder.encode(encodedData, numEc);
+            return encodedData;
+        }
     }
     public static String combinePaths(String ... paths){
         if(paths.length==0){
