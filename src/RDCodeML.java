@@ -10,8 +10,8 @@ import java.util.*;
 /**
  * Created by zhantong on 2017/6/3.
  */
-public class RDCode {
-    RDCodeConfig config;
+public class RDCodeML {
+    RDCodeMLConfig config;
     Map<EncodeHintType,?> hints;
     int inputFileSizeInByte=0;
     boolean saveBitSetList=true;
@@ -20,10 +20,10 @@ public class RDCode {
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,8);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
-        RDCode rDCode=new RDCode(new RDCodeConfig(),hints);
-        rDCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCode0");
+        RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig(),hints);
+        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCode0");
     }
-    public RDCode(RDCodeConfig config,Map<EncodeHintType,?> hints){
+    public RDCodeML(RDCodeMLConfig config, Map<EncodeHintType,?> hints){
         this.config=config;
         this.hints=hints;
 

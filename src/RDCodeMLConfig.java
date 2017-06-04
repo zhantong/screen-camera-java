@@ -1,7 +1,7 @@
 /**
  * Created by zhantong on 2017/6/3.
  */
-public class RDCodeConfig extends BarcodeConfig {
+public class RDCodeMLConfig extends BarcodeConfig {
     int regionWidth;
     int regionHeight;
     int numRegionHorizon;
@@ -9,7 +9,7 @@ public class RDCodeConfig extends BarcodeConfig {
 
     int numInterBlockEc=3;
 
-    public RDCodeConfig(){
+    public RDCodeMLConfig(){
         marginLength = new DistrictConfig<>(8);
         borderLength = new DistrictConfig<>(1);
         paddingLength = new DistrictConfig<>(2,0,2,0);
