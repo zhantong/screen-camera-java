@@ -21,7 +21,7 @@ public class RDCodeML {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,8);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig(),hints);
-        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCode0");
+        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCode2");
     }
     public RDCodeML(RDCodeMLConfig config, Map<EncodeHintType,?> hints){
         this.config=config;
@@ -155,7 +155,12 @@ public class RDCodeML {
                 if(currentRegion==indexCenterBlock){
                     window.frames[currentFrame].regions[currentRegion].data[0]=currentWindow;
                     window.frames[currentFrame].regions[currentRegion].data[1]=currentFrame;
-                    Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,numRSBytes,8,true);
+                    int numFileBytes=inputFileArray.length;
+                    window.frames[currentFrame].regions[currentRegion].data[2]=numFileBytes>>24;
+                    window.frames[currentFrame].regions[currentRegion].data[3]=(numFileBytes>>16)&0xff;
+                    window.frames[currentFrame].regions[currentRegion].data[4]=(numFileBytes>>8)&0xff;
+                    window.frames[currentFrame].regions[currentRegion].data[5]=numFileBytes&0xff;
+                    Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,12,8,true);
                     currentRegion++;
                 }else{
                     if(currentRegion==numRegions){
@@ -167,7 +172,12 @@ public class RDCodeML {
                             if(currentRegion==indexCenterBlock){
                                 window.frames[currentFrame].regions[currentRegion].data[0]=currentWindow;
                                 window.frames[currentFrame].regions[currentRegion].data[1]=currentFrame;
-                                Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,numRSBytes,8,true);
+                                int numFileBytes=inputFileArray.length;
+                                window.frames[currentFrame].regions[currentRegion].data[2]=numFileBytes>>24;
+                                window.frames[currentFrame].regions[currentRegion].data[3]=(numFileBytes>>16)&0xff;
+                                window.frames[currentFrame].regions[currentRegion].data[4]=(numFileBytes>>8)&0xff;
+                                window.frames[currentFrame].regions[currentRegion].data[5]=numFileBytes&0xff;
+                                Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,12,8,true);
                                 currentRegion++;
                             }else{
                                 Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,numRSBytes,8,true);
