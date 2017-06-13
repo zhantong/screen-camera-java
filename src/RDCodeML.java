@@ -21,7 +21,7 @@ public class RDCodeML {
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,8);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
         RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig(),hints);
-        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCode2");
+        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample8.txt","/Users/zhantong/Desktop/RDCode6");
     }
     public RDCodeML(RDCodeMLConfig config, Map<EncodeHintType,?> hints){
         this.config=config;
@@ -35,32 +35,16 @@ public class RDCodeML {
 
         config.borderContent.set(District.RIGHT,rightBarContent);
     }
+    private void buildCenterRegion(Region region,int currentWindow,int currentFrame,int numFileBytes){
+        region.data[0]=currentWindow;
+        region.data[1]=currentFrame;
+        region.data[2]=numFileBytes>>24;
+        region.data[3]=(numFileBytes>>16)&0xff;
+        region.data[4]=(numFileBytes>>8)&0xff;
+        region.data[5]=numFileBytes&0xff;
+        Utils.rSEncode(region.data,12,8,true);
+    }
     protected void toImages(String inputFilePath,String outputDirectoryPath){
-        int rSEcSize=12;
-        float rSEcLevel=0.2f;
-        int NUMBER_OF_SOURCE_BLOCKS=1;
-        float raptorQRedundancy=0.5f;
-        boolean isReplaceLastSourcePacketAsRepair=true;
-        if(hints!=null){
-            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_SIZE)){
-                rSEcSize=Integer.parseInt(hints.get(EncodeHintType.RS_ERROR_CORRECTION_SIZE).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_LEVEL)){
-                rSEcLevel=Float.parseFloat(hints.get(EncodeHintType.RS_ERROR_CORRECTION_LEVEL).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS)){
-                NUMBER_OF_SOURCE_BLOCKS=Integer.parseInt(hints.get(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT)){
-                raptorQRedundancy=Float.parseFloat(hints.get(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR)){
-                isReplaceLastSourcePacketAsRepair=Boolean.parseBoolean(hints.get(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR).toString());
-            }
-        }
-        int numRS=calcNumRS(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize);
-        int numRSEc= calcNumRSEc(numRS,rSEcLevel);
-        int numRSData=calcNumRSData(numRS,numRSEc);
         byte[] inputFileArray=getInputFileBytes(inputFilePath);
 
         int numRegions=config.numRegionHorizon*config.numRegionVertical;
@@ -153,14 +137,7 @@ public class RDCodeML {
                     }
                 }
                 if(currentRegion==indexCenterBlock){
-                    window.frames[currentFrame].regions[currentRegion].data[0]=currentWindow;
-                    window.frames[currentFrame].regions[currentRegion].data[1]=currentFrame;
-                    int numFileBytes=inputFileArray.length;
-                    window.frames[currentFrame].regions[currentRegion].data[2]=numFileBytes>>24;
-                    window.frames[currentFrame].regions[currentRegion].data[3]=(numFileBytes>>16)&0xff;
-                    window.frames[currentFrame].regions[currentRegion].data[4]=(numFileBytes>>8)&0xff;
-                    window.frames[currentFrame].regions[currentRegion].data[5]=numFileBytes&0xff;
-                    Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,12,8,true);
+                    buildCenterRegion( window.frames[currentFrame].regions[currentRegion],currentWindow,currentFrame,inputFileArray.length);
                     currentRegion++;
                 }else{
                     if(currentRegion==numRegions){
@@ -170,14 +147,7 @@ public class RDCodeML {
                     if(currentFrame==indexLastFrame){
                         while(currentRegion<numRegions){
                             if(currentRegion==indexCenterBlock){
-                                window.frames[currentFrame].regions[currentRegion].data[0]=currentWindow;
-                                window.frames[currentFrame].regions[currentRegion].data[1]=currentFrame;
-                                int numFileBytes=inputFileArray.length;
-                                window.frames[currentFrame].regions[currentRegion].data[2]=numFileBytes>>24;
-                                window.frames[currentFrame].regions[currentRegion].data[3]=(numFileBytes>>16)&0xff;
-                                window.frames[currentFrame].regions[currentRegion].data[4]=(numFileBytes>>8)&0xff;
-                                window.frames[currentFrame].regions[currentRegion].data[5]=numFileBytes&0xff;
-                                Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,12,8,true);
+                                buildCenterRegion( window.frames[currentFrame].regions[currentRegion],currentWindow,currentFrame,inputFileArray.length);
                                 currentRegion++;
                             }else{
                                 Utils.rSEncode(window.frames[currentFrame].regions[currentRegion].data,numRSBytes,8,true);
