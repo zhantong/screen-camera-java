@@ -1,11 +1,11 @@
 /**
- * Created by zhantong on 2017/5/24.
+ * Created by zhantong on 2017/6/15.
  */
-public class BlackWhiteCodeConfig extends BarcodeConfig {
-    public BlackWhiteCodeConfig() {
+public class BlackWhiteCodeWithBarConfig extends BarcodeConfig{
+    public BlackWhiteCodeWithBarConfig() {
         marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
-        paddingLength = new DistrictConfig<>(0);
+        paddingLength = new DistrictConfig<>(2,0,2,0);
         metaLength=new DistrictConfig<>(0);
 
         mainWidth = 40;

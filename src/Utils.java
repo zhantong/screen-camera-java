@@ -164,6 +164,15 @@ public class Utils {
             return encodedData;
         }
     }
+    public static List<int[]> rSEncode(List<byte[]> dataList,int numEc,int ecSize){
+        List<int[]> encodedList=new LinkedList<>();
+        for(byte[] data:dataList){
+            int[] converted=Utils.byteArrayToIntArray(data,ecSize);
+            int[] encoded=Utils.rSEncode(converted,numEc,ecSize);
+            encodedList.add(encoded);
+        }
+        return encodedList;
+    }
     public static String combinePaths(String ... paths){
         if(paths.length==0){
             return "";

@@ -6,6 +6,7 @@ public class ShiftCodeConfig extends BarcodeConfig{
         marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
         paddingLength = new DistrictConfig<>(0);
+        metaLength=new DistrictConfig<>(0);
 
         mainWidth = 40;
         mainHeight = 40;
