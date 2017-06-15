@@ -10,7 +10,6 @@ public class BlackWhiteCode {
     BarcodeConfig config;
     Map<EncodeHintType,?> hints;
     int inputFileSizeInByte=0;
-    boolean saveBitSetList=true;
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
@@ -68,10 +67,11 @@ public class BlackWhiteCode {
         List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
         List<int[]> rS=Utils.rSEncode(raptorQ,numRSEc,rSEcSize);
         List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
-        if(saveBitSetList){
-            Utils.writeObjectToFile(rSBitSet,"out.txt");
-        }
+        saveBitSetList(rSBitSet);
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
+    }
+    protected void saveBitSetList(List<BitSet> bitSetList){
+        Utils.writeObjectToFile(bitSetList,"out.txt");
     }
     protected void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
         for(int i=0;i<dataList.size();i++){
