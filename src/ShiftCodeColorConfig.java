@@ -6,7 +6,7 @@ public class ShiftCodeColorConfig extends BarcodeConfig {
         marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
         paddingLength = new DistrictConfig<>(1);
-        metaLength = new DistrictConfig<>(2,0,2,0);
+        metaLength = new DistrictConfig<>(0);
 
         mainWidth = 20;
         mainHeight = 20;
