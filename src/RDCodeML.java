@@ -1,39 +1,22 @@
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import net.fec.openrq.parameters.FECParameters;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.*;
 
 /**
  * Created by zhantong on 2017/6/3.
  */
-public class RDCodeML {
+public class RDCodeML extends BlackWhiteCodeML{
     RDCodeMLConfig config;
-    Map<EncodeHintType,?> hints;
-    int inputFileSizeInByte=0;
-    boolean saveBitSetList=true;
-    private int numRandomBarcode=100;
+
     public static void main(String[] args){
         Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,8);
         hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
+        hints.put(EncodeHintType.NUMBER_OF_RANDOM_BARCODES,100);
         RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig(),hints);
-        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample8.txt","/Users/zhantong/Desktop/RDCode6");
+        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCodeML");
     }
-    public RDCodeML(RDCodeMLConfig config, Map<EncodeHintType,?> hints){
+    public RDCodeML(RDCodeMLConfig config, Map<EncodeHintType, ?> hints) {
+        super(config, hints);
         this.config=config;
-        this.hints=hints;
-
-        BitSet rightBarBitSet=new BitSet();
-        for(int i=0;i<config.mainHeight;i+=2){
-            rightBarBitSet.set(i);
-        }
-        BitContent rightBarContent=new BitContent(rightBarBitSet);
-
-        config.borderContent.set(District.RIGHT,rightBarContent);
     }
     private void buildCenterRegion(Region region,int currentWindow,int currentFrame,int numFileBytes){
         region.data[0]=currentWindow;
@@ -191,138 +174,8 @@ public class RDCodeML {
         inputFileSizeInByte=inputFileArray.length;
 
         List<BitSet> rSBitSet=intArrayListToBitSetList(rSEncoded,8);
-        if(saveBitSetList){
-            List<int[]> outputIntList=new ArrayList<>();
-            for(BitSet bitSet:rSBitSet){
-                outputIntList.add(Utils.bitSetToIntArray(bitSet,config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),config.mainBlock.get(District.MAIN).getBitsPerUnit()));
-            }
-            Gson gson=new Gson();
-            JsonObject root=new JsonObject();
-            root.add("values",gson.toJsonTree(outputIntList));
-            try(Writer writer=new FileWriter("out.txt")) {
-                gson.toJson(root, writer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        saveBitSetList(rSBitSet);
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
-    }
-    protected void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
-        for(int i=0;i<dataList.size();i++){
-            BitSet dataBitSet=dataList.get(i);
-            BitContent dataContent=new BitContent(dataBitSet);
-            reconfigure(config,i);
-            Barcode barcode=new Barcode(i,config);
-            barcode.districts.get(Districts.MAIN).get(District.MAIN).addContent(dataContent);
-            //Image image=barcode.toImage(0);
-            Image image=barcode.toImage(1);
-            try {
-                image.save(i,outputDirectoryPath,ImageYUV.TYPE_YUV420);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    protected List<BitSet> intArrayListToBitSetList(List<int[]> dataList,int bitsPerInt){
-        List<BitSet> bitSetList=new LinkedList<>();
-
-        for(int[] data:dataList){
-            BitSet dataBitSet=Utils.intArrayToBitSet(data,bitsPerInt);
-            bitSetList.add(dataBitSet);
-
-/*            byte[] converted=Utils.intArrayToByteArray(data,rSEcSize);
-            BitSet dataBitSet=BitSet.valueOf(converted);
-            rSBitSet.add(dataBitSet);*/
-        }
-        List<BitSet> randomBitSetList=Utils.randomBitSetList(config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),numRandomBarcode,0);
-        bitSetList.addAll(0,randomBitSetList);
-        return bitSetList;
-    }
-    private List<int[]> reedSolomonEncode(List<byte[]> dataList,int ecSize,int numEc){
-        List<int[]> encodedList=new LinkedList<>();
-        for(byte[] data:dataList){
-            int[] converted=Utils.byteArrayToIntArray(data,ecSize);
-            int[] encoded=Utils.rSEncode(converted,numEc,ecSize);
-            encodedList.add(encoded);
-        }
-        return encodedList;
-    }
-    private List<byte[]> raptorQEncode(byte[] array,FECParameters parameters,float redundancy,boolean isReplaceLastSourcePacketAsRepair){
-        return Utils.raptorQEncode(array,parameters,redundancy,isReplaceLastSourcePacketAsRepair);
-    }
-    private byte[] getInputFileBytes(String inputFilePath){
-        byte[] inputFileArray;
-        try {
-            inputFileArray=Utils.fileToByteArray(inputFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException("input file "+inputFilePath+" not found");
-        }
-        return inputFileArray;
-    }
-    protected BarcodeConfig configureTopBar(BarcodeConfig config,int data){
-        BitSet topBarBitSet=Utils.intWithCRC8Checksum(data);
-        BitContent topBarContent=new BitContent(topBarBitSet);
-        config.borderContent.set(District.UP,topBarContent);
-        return config;
-    }
-    protected BarcodeConfig reconfigure(BarcodeConfig config,int barcodeIndex){
-        if(barcodeIndex%2==0) {
-            BitSet leftBarBitSet=new BitSet();
-            leftBarBitSet.set(0);
-            leftBarBitSet.set(config.mainHeight-1);
-            BitContent leftBarContentEven=new BitContent(leftBarBitSet);
-            config.borderContent.set(District.LEFT, leftBarContentEven);
-        }else{
-            BitContent leftBarContentOdd=new BitContent(BitContent.ALL_ZEROS);
-            config.borderContent.set(District.LEFT, leftBarContentOdd);
-        }
-        BitSet paddingBarWhiteBlackBitSet=new BitSet();
-        BitSet paddingBarBlackWhiteBitSet=new BitSet();
-        for(int i=0;i<config.mainHeight*2;i+=2){
-            paddingBarWhiteBlackBitSet.set(i);
-            paddingBarBlackWhiteBitSet.set(i+1);
-        }
-        BitContent paddingBarWhiteBlackContent=new BitContent(paddingBarWhiteBlackBitSet);
-        BitContent paddingBarBlackWhiteContent=new BitContent(paddingBarBlackWhiteBitSet);
-        if(barcodeIndex%2==0) {
-            config.paddingContent.set(District.LEFT, paddingBarWhiteBlackContent);
-            config.paddingContent.set(District.RIGHT, paddingBarWhiteBlackContent);
-        }else{
-            config.paddingContent.set(District.LEFT, paddingBarBlackWhiteContent);
-            config.paddingContent.set(District.RIGHT, paddingBarBlackWhiteContent);
-        }
-        if(barcodeIndex<numRandomBarcode){
-            BitSet bottomBarBitSet=new BitSet();
-            bottomBarBitSet.set(2);
-            BitContent bottomBarContent=new BitContent(bottomBarBitSet);
-            config.borderContent.set(District.DOWN,bottomBarContent);
-
-            BitSet topBarBitSet=Utils.reverse(Utils.intToBitSet(Utils.intToGrayCode(barcodeIndex),32),32);
-            BitContent topBarContent=new BitContent(topBarBitSet);
-            config.borderContent.set(District.UP,topBarContent);
-        }else {
-            config.borderContent.set(District.DOWN,new BitContent(BitContent.ALL_ZEROS));
-
-            BitSet topBarBitSet=Utils.intWithCRC8Checksum(inputFileSizeInByte);
-            BitContent topBarContent=new BitContent(topBarBitSet);
-            config.borderContent.set(District.UP,topBarContent);
-        }
-        return config;
-    }
-    protected static int calcNumRSEc(int numRS, float rSEcLevel){
-        return (int)Math.floor(numRS*rSEcLevel);
-    }
-    protected static int calcNumRS(int width,int height,int bitsPerUnit,int rSEcSize){
-        return bitsPerUnit*width*height/rSEcSize;
-    }
-    protected static int calcNumRSData(int numRS,int numRSEc){
-        return numRS-numRSEc;
-    }
-    protected static int calcRaptorQPacketSize(int numRSData,int rSEcSize){
-        return numRSData*rSEcSize/8;
-    }
-    protected static int calcRaptorQSymbolSize(int raptorQPacketSize){
-        return raptorQPacketSize-8;
     }
     class Window{
         Frame[] frames;

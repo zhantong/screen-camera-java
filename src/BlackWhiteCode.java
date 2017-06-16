@@ -106,7 +106,7 @@ public class BlackWhiteCode {
     private List<byte[]> raptorQEncode(byte[] array,FECParameters parameters,float redundancy,boolean isReplaceLastSourcePacketAsRepair){
         return Utils.raptorQEncode(array,parameters,redundancy,isReplaceLastSourcePacketAsRepair);
     }
-    private byte[] getInputFileBytes(String inputFilePath){
+    protected byte[] getInputFileBytes(String inputFilePath){
         byte[] inputFileArray;
         try {
             inputFileArray=Utils.fileToByteArray(inputFilePath);

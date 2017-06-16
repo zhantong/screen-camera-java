@@ -7,8 +7,6 @@ public class RDCodeMLConfig extends BarcodeConfig {
     int numRegionHorizon;
     int numRegionVertical;
 
-    int numInterBlockEc=3;
-
     public RDCodeMLConfig(){
         marginLength = new DistrictConfig<>(8);
         borderLength = new DistrictConfig<>(1);
@@ -17,8 +15,9 @@ public class RDCodeMLConfig extends BarcodeConfig {
 
         regionWidth=12;
         regionHeight=12;
-        numRegionHorizon=3;
-        numRegionVertical=3;
+
+        numRegionHorizon=11;
+        numRegionVertical=11;
 
         mainWidth = numRegionHorizon*regionWidth;
         mainHeight = numRegionVertical*regionHeight;
