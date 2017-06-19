@@ -21,5 +21,12 @@ public class ShiftCodeColorMLConfig extends BarcodeConfig {
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
         metaContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
+
+        hints.put(ShiftCodeColorML.KEY_SIZE_RS_ERROR_CORRECTION,12);
+        hints.put(ShiftCodeColorML.KEY_LEVEL_RS_ERROR_CORRECTION,0.1);
+        hints.put(ShiftCodeColorML.KEY_NUMBER_RAPTORQ_SOURCE_BLOCKS,1);
+        hints.put(ShiftCodeColorML.KEY_PERCENT_RAPTORQ_REDUNDANT,0.5);
+        hints.put(ShiftCodeColorML.KEY_IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR,true);
+        hints.put(ShiftCodeColorML.KEY_NUMBER_RANDOM_BARCODES,100);
     }
 }

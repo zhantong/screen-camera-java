@@ -7,15 +7,11 @@ public class RDCodeML extends BlackWhiteCodeML{
     RDCodeMLConfig config;
 
     public static void main(String[] args){
-        Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,8);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
-        hints.put(EncodeHintType.NUMBER_OF_RANDOM_BARCODES,100);
-        RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig(),hints);
+        RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig());
         rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCodeML");
     }
-    public RDCodeML(RDCodeMLConfig config, Map<EncodeHintType, ?> hints) {
-        super(config, hints);
+    public RDCodeML(RDCodeMLConfig config) {
+        super(config);
         this.config=config;
     }
     private void buildCenterRegion(Region region,int currentWindow,int currentFrame,int numFileBytes){

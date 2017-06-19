@@ -1,3 +1,6 @@
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zhantong on 2016/11/18.
  */
@@ -116,4 +119,6 @@ public class BarcodeConfig {
             null,
             null);
     */
+
+    public Map<String,Object> hints=new HashMap<>();
 }

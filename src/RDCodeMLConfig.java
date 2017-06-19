@@ -8,7 +8,7 @@ public class RDCodeMLConfig extends BarcodeConfig {
     int numRegionVertical;
 
     public RDCodeMLConfig(){
-        marginLength = new DistrictConfig<>(8);
+        marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
         paddingLength = new DistrictConfig<>(2,0,2,0);
         metaLength=new DistrictConfig<>(0);
@@ -16,8 +16,8 @@ public class RDCodeMLConfig extends BarcodeConfig {
         regionWidth=12;
         regionHeight=12;
 
-        numRegionHorizon=11;
-        numRegionVertical=11;
+        numRegionHorizon=3;
+        numRegionVertical=3;
 
         mainWidth = numRegionHorizon*regionWidth;
         mainHeight = numRegionVertical*regionHeight;
@@ -30,5 +30,9 @@ public class RDCodeMLConfig extends BarcodeConfig {
 
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
+
+        hints.put(RDCodeML.KEY_SIZE_RS_ERROR_CORRECTION,8);
+        hints.put(RDCodeML.KEY_LEVEL_RS_ERROR_CORRECTION,0.1);
+        hints.put(RDCodeML.KEY_NUMBER_RANDOM_BARCODES,100);
     }
 }

@@ -9,15 +9,11 @@ import java.util.Map;
  */
 public class ShiftCodeColor extends ShiftCode {
     public static void main(String[] args){
-        Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
-        hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
-        ShiftCodeColor shiftCodeColor=new ShiftCodeColor(new ShiftCodeColorConfig(),hints);
-        shiftCodeColor.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample4.txt","/Users/zhantong/Desktop/ShiftCodeColor5");
+        ShiftCodeColor shiftCodeColor=new ShiftCodeColor(new ShiftCodeColorConfig());
+        shiftCodeColor.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/ShiftCodeColor");
     }
-    public ShiftCodeColor(BarcodeConfig config, Map<EncodeHintType, ?> hints) {
-        super(config, hints);
+    public ShiftCodeColor(BarcodeConfig config) {
+        super(config);
         BitSet rightBarBitSet=new BitSet();
         for(int i=0;i<config.mainHeight;i+=2){
             rightBarBitSet.set(i);

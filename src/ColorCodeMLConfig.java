@@ -3,13 +3,13 @@
  */
 public class ColorCodeMLConfig extends BarcodeConfig {
     public ColorCodeMLConfig(){
-        marginLength = new DistrictConfig<>(8);
+        marginLength = new DistrictConfig<>(4);
         borderLength = new DistrictConfig<>(1);
         paddingLength = new DistrictConfig<>(2,0,2,0);
         metaLength=new DistrictConfig<>(0);
 
-        mainWidth = 80;
-        mainHeight = 80;
+        mainWidth = 40;
+        mainHeight = 40;
 
         blockLengthInPixel = 20;
 
@@ -21,5 +21,12 @@ public class ColorCodeMLConfig extends BarcodeConfig {
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
         //metaContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
+
+        hints.put(ColorCodeML.KEY_SIZE_RS_ERROR_CORRECTION,12);
+        hints.put(ColorCodeML.KEY_LEVEL_RS_ERROR_CORRECTION,0.1);
+        hints.put(ColorCodeML.KEY_NUMBER_RAPTORQ_SOURCE_BLOCKS,1);
+        hints.put(ColorCodeML.KEY_PERCENT_RAPTORQ_REDUNDANT,0.5);
+        hints.put(ColorCodeML.KEY_IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR,true);
+        hints.put(ColorCodeML.KEY_NUMBER_RANDOM_BARCODES,100);
     }
 }

@@ -7,20 +7,19 @@ import java.util.*;
  * Created by zhantong on 2017/5/24.
  */
 public class BlackWhiteCode {
+    public static final String KEY_SIZE_RS_ERROR_CORRECTION="SIZE_RS_ERROR_CORRECTION";
+    public static final String KEY_LEVEL_RS_ERROR_CORRECTION="LEVEL_RS_ERROR_CORRECTION";
+    public static final String KEY_NUMBER_RAPTORQ_SOURCE_BLOCKS="NUMBER_RAPTORQ_SOURCE_BLOCKS";
+    public static final String KEY_PERCENT_RAPTORQ_REDUNDANT="PERCENT_RAPTORQ_REDUNDANT";
+    public static final String KEY_IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR="IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR";
     BarcodeConfig config;
-    Map<EncodeHintType,?> hints;
     int inputFileSizeInByte=0;
     public static void main(String[] args){
-        Map<EncodeHintType,Object> hints=new EnumMap<>(EncodeHintType.class);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_SIZE,12);
-        hints.put(EncodeHintType.RS_ERROR_CORRECTION_LEVEL,0.1);
-        hints.put(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS,1);
-        BlackWhiteCode blackWhiteCode=new BlackWhiteCode(new BlackWhiteCodeConfig(),hints);
+        BlackWhiteCode blackWhiteCode=new BlackWhiteCode(new BlackWhiteCodeConfig());
         blackWhiteCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/BlackWhiteCode");
     }
-    public BlackWhiteCode(BarcodeConfig config,Map<EncodeHintType,?> hints){
+    public BlackWhiteCode(BarcodeConfig config){
         this.config=config;
-        this.hints=hints;
 
         BitSet rightBarBitSet=new BitSet();
         for(int i=0;i<config.mainHeight;i+=2){
@@ -31,28 +30,12 @@ public class BlackWhiteCode {
         config.borderContent.set(District.RIGHT,rightBarContent);
     }
     protected void toImages(String inputFilePath,String outputDirectoryPath){
-        int rSEcSize=12;
-        float rSEcLevel=0.2f;
-        int NUMBER_OF_SOURCE_BLOCKS=1;
-        float raptorQRedundancy=0.5f;
-        boolean isReplaceLastSourcePacketAsRepair=true;
-        if(hints!=null){
-            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_SIZE)){
-                rSEcSize=Integer.parseInt(hints.get(EncodeHintType.RS_ERROR_CORRECTION_SIZE).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RS_ERROR_CORRECTION_LEVEL)){
-                rSEcLevel=Float.parseFloat(hints.get(EncodeHintType.RS_ERROR_CORRECTION_LEVEL).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS)){
-                NUMBER_OF_SOURCE_BLOCKS=Integer.parseInt(hints.get(EncodeHintType.RAPTORQ_NUMBER_OF_SOURCE_BLOCKS).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT)){
-                raptorQRedundancy=Float.parseFloat(hints.get(EncodeHintType.RAPTORQ_REDUNDANT_PERCENT).toString());
-            }
-            if(hints.containsKey(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR)){
-                isReplaceLastSourcePacketAsRepair=Boolean.parseBoolean(hints.get(EncodeHintType.RAPTORQ_REPLACE_LAST_SOURCE_PACKET_AS_REPAIR).toString());
-            }
-        }
+        int rSEcSize=Integer.parseInt(config.hints.get(KEY_SIZE_RS_ERROR_CORRECTION).toString());
+        float rSEcLevel=Float.parseFloat(config.hints.get(KEY_LEVEL_RS_ERROR_CORRECTION).toString());
+        int NUMBER_OF_SOURCE_BLOCKS=Integer.parseInt(config.hints.get(KEY_NUMBER_RAPTORQ_SOURCE_BLOCKS).toString());
+        float raptorQRedundancy=Float.parseFloat(config.hints.get(KEY_PERCENT_RAPTORQ_REDUNDANT).toString());
+        boolean isReplaceLastSourcePacketAsRepair=Boolean.parseBoolean(config.hints.get(KEY_IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR).toString());
+
         int numRS=calcNumRS(config.mainWidth,config.mainHeight,config.mainBlock.get(District.MAIN).getBitsPerUnit(),rSEcSize);
         int numRSEc= calcNumRSEc(numRS,rSEcLevel);
         int numRSData=calcNumRSData(numRS,numRSEc);

@@ -19,5 +19,11 @@ public class BlackWhiteCodeWithBarConfig extends BarcodeConfig{
 
         marginContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ONES));
         borderContent = new DistrictConfig<>(new BitContent(BitContent.ALL_ZEROS));
+
+        hints.put(BlackWhiteCodeWithBar.KEY_SIZE_RS_ERROR_CORRECTION,12);
+        hints.put(BlackWhiteCodeWithBar.KEY_LEVEL_RS_ERROR_CORRECTION,0.1);
+        hints.put(BlackWhiteCodeWithBar.KEY_NUMBER_RAPTORQ_SOURCE_BLOCKS,1);
+        hints.put(BlackWhiteCodeWithBar.KEY_PERCENT_RAPTORQ_REDUNDANT,0.5);
+        hints.put(BlackWhiteCodeWithBar.KEY_IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR,true);
     }
 }
