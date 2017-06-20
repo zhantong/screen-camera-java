@@ -1,10 +1,13 @@
 import ReedSolomon.GenericGF;
 import ReedSolomon.ReedSolomonEncoder;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import net.fec.openrq.EncodingPacket;
 import net.fec.openrq.OpenRQ;
 import net.fec.openrq.encoder.DataEncoder;
 import net.fec.openrq.encoder.SourceBlockEncoder;
 import net.fec.openrq.parameters.FECParameters;
+import net.fec.openrq.parameters.SerializableParameters;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -278,5 +281,25 @@ public class Utils {
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+    public static void saveJsonToFile(JsonObject jsonRoot,String filePath){
+        try(Writer writer=new FileWriter(filePath)){
+            new Gson().toJson(jsonRoot,writer);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+    public static JsonObject fecParametersToJson(FECParameters parameters){
+        JsonObject root=new JsonObject();
+        root.addProperty("numDataBytes",parameters.dataLength());
+        root.addProperty("numSymbolBytes",parameters.symbolSize());
+        root.addProperty("numSourceBlocks",parameters.numberOfSourceBlocks());
+        root.addProperty("numSourceSymbols",parameters.totalSymbols());
+        root.addProperty("lengthInterleaver",parameters.interleaverLength());
+
+        SerializableParameters serializableParameters= parameters.asSerializable();
+        root.addProperty("commonOTI",serializableParameters.commonOTI());
+        root.addProperty("schemeSpecificOTI",serializableParameters.schemeSpecificOTI());
+        return root;
     }
 }
