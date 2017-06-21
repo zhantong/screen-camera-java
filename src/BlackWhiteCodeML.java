@@ -1,9 +1,3 @@
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.*;
 
 /**
@@ -14,24 +8,10 @@ public class BlackWhiteCodeML extends BlackWhiteCodeWithBar{
     public static void main(String[] args){
         BlackWhiteCodeML blackWhiteCodeML=new BlackWhiteCodeML(new BlackWhiteCodeMLConfig());
         blackWhiteCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/BlackWhiteCodeML");
+        blackWhiteCodeML.saveJsonToFile("out.json");
     }
     public BlackWhiteCodeML(BarcodeConfig config) {
         super(config);
-    }
-    @Override
-    protected void saveBitSetList(List<BitSet> bitSetList) {
-        List<int[]> outputIntList=new ArrayList<>();
-        for(BitSet bitSet:bitSetList){
-            outputIntList.add(Utils.bitSetToIntArray(bitSet,config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),config.mainBlock.get(District.MAIN).getBitsPerUnit()));
-        }
-        Gson gson=new Gson();
-        JsonObject root=new JsonObject();
-        root.add("values",gson.toJsonTree(outputIntList));
-        try(Writer writer=new FileWriter("out.txt")) {
-            gson.toJson(root, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     protected List<BitSet> intArrayListToBitSetList(List<int[]> dataList,int bitsPerInt){
         List<BitSet> bitSetList=super.intArrayListToBitSetList(dataList,bitsPerInt);

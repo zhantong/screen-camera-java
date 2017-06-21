@@ -1,3 +1,6 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.fec.openrq.parameters.FECParameters;
 
 import java.io.IOException;
@@ -14,13 +17,15 @@ public class BlackWhiteCode {
     public static final String KEY_IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR="IS_REPLACE_LAST_RAPTORQ_SOURCE_PACKET_AS_REPAIR";
     BarcodeConfig config;
     int inputFileSizeInByte=0;
+    JsonObject jsonRoot=new JsonObject();
     public static void main(String[] args){
         BlackWhiteCode blackWhiteCode=new BlackWhiteCode(new BlackWhiteCodeConfig());
         blackWhiteCode.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/BlackWhiteCode");
+        blackWhiteCode.saveJsonToFile("out.json");
     }
     public BlackWhiteCode(BarcodeConfig config){
         this.config=config;
-
+        jsonRoot.add("barcodeConfig",config.toJson());
         BitSet rightBarBitSet=new BitSet();
         for(int i=0;i<config.mainHeight;i+=2){
             rightBarBitSet.set(i);
@@ -41,20 +46,21 @@ public class BlackWhiteCode {
         int numRSData=calcNumRSData(numRS,numRSEc);
         byte[] inputFileArray=getInputFileBytes(inputFilePath);
 
+        jsonRoot.addProperty("filePath",inputFilePath);
+        jsonRoot.addProperty("SHA1",FileVerification.bytesToSHA1(inputFileArray));
+
         configureTopBar(config,inputFileArray.length);
         inputFileSizeInByte=inputFileArray.length;
 
         int numDataBytes = calcRaptorQSymbolSize(calcRaptorQPacketSize(numRSData,rSEcSize));
         FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);
+        jsonRoot.add("FECParameters",Utils.fecParametersToJson(parameters));
         System.out.println("FECParameters: "+parameters.toString());
         List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
         List<int[]> rS=Utils.rSEncode(raptorQ,numRSEc,rSEcSize);
         List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
-        saveBitSetList(rSBitSet);
+        jsonRoot.add("barcodeValues",bitSetListToJson(rSBitSet));
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
-    }
-    protected void saveBitSetList(List<BitSet> bitSetList){
-        Utils.writeObjectToFile(bitSetList,"out.txt");
     }
     protected void bitSetListToImages(List<BitSet> dataList,String outputDirectoryPath,BarcodeConfig config){
         for(int i=0;i<dataList.size();i++){
@@ -131,5 +137,15 @@ public class BlackWhiteCode {
     }
     protected static int calcRaptorQSymbolSize(int raptorQPacketSize){
         return raptorQPacketSize-8;
+    }
+    void saveJsonToFile(String filePath){
+        Utils.saveJsonToFile(jsonRoot,filePath);
+    }
+    JsonElement bitSetListToJson(List<BitSet> bitSetList){
+        List<int[]> outputIntList=new ArrayList<>();
+        for(BitSet bitSet:bitSetList){
+            outputIntList.add(Utils.bitSetToIntArray(bitSet,config.mainWidth*config.mainHeight*config.mainBlock.get(District.MAIN).getBitsPerUnit(),config.mainBlock.get(District.MAIN).getBitsPerUnit()));
+        }
+        return new Gson().toJsonTree(outputIntList);
     }
 }

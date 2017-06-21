@@ -170,7 +170,6 @@ public class RDCodeML extends BlackWhiteCodeML{
         inputFileSizeInByte=inputFileArray.length;
 
         List<BitSet> rSBitSet=intArrayListToBitSetList(rSEncoded,8);
-        saveBitSetList(rSBitSet);
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
     class Window{
