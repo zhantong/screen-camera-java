@@ -6,7 +6,8 @@ import java.util.BitSet;
 public class BlackWhiteCodeWithBar extends BlackWhiteCode {
     public static void main(String[] args){
         BlackWhiteCodeWithBar blackWhiteCodeWithBar=new BlackWhiteCodeWithBar(new BlackWhiteCodeWithBarConfig());
-        blackWhiteCodeWithBar.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/BlackWhiteCodeWithBar");
+        blackWhiteCodeWithBar.toImages("/Volumes/扩展存储/实验/原始文件/sample5.txt","/Volumes/扩展存储/实验/BlackWhiteCodeWithBar/140x140_0.1/1x");
+        blackWhiteCodeWithBar.saveJsonToFile("out.json");
     }
     public BlackWhiteCodeWithBar(BarcodeConfig config) {
         super(config);

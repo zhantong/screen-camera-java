@@ -5,7 +5,8 @@
 public class ColorCodeML extends BlackWhiteCodeML {
     public static void main(String[] args){
         ColorCodeML colorCodeML=new ColorCodeML(new ColorCodeMLConfig());
-        colorCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/ColorCodeML");
+        colorCodeML.toImages("/Volumes/扩展存储/实验/原始文件/sample23.txt","/Volumes/扩展存储/实验/ColorCodeML/140x140_0.1/1x");
+        colorCodeML.saveJsonToFile("out.json");
     }
     public ColorCodeML(BarcodeConfig config) {
         super(config);

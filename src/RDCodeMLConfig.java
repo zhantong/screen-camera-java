@@ -1,3 +1,6 @@
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 /**
  * Created by zhantong on 2017/6/3.
  */
@@ -34,5 +37,14 @@ public class RDCodeMLConfig extends BarcodeConfig {
         hints.put(RDCodeML.KEY_SIZE_RS_ERROR_CORRECTION,8);
         hints.put(RDCodeML.KEY_LEVEL_RS_ERROR_CORRECTION,0.1);
         hints.put(RDCodeML.KEY_NUMBER_RANDOM_BARCODES,100);
+    }
+    @Override
+    JsonElement toJson() {
+        JsonObject root= (JsonObject) super.toJson();
+        root.addProperty("regionWidth",regionWidth);
+        root.addProperty("regionHeight",regionHeight);
+        root.addProperty("numRegionHorizon",numRegionHorizon);
+        root.addProperty("numRegionVertical",numRegionVertical);
+        return root;
     }
 }

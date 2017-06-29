@@ -1,3 +1,5 @@
+import com.google.gson.JsonObject;
+
 import java.util.*;
 
 /**
@@ -8,7 +10,8 @@ public class RDCodeML extends BlackWhiteCodeML{
 
     public static void main(String[] args){
         RDCodeML rDCodeML =new RDCodeML(new RDCodeMLConfig());
-        rDCodeML.toImages("/Volumes/扩展存储/ShiftCode实验/发送方/sample0.txt","/Users/zhantong/Desktop/RDCodeML");
+        rDCodeML.toImages("/Volumes/扩展存储/实验/原始文件/sample12.txt","/Volumes/扩展存储/实验/RDCodeML/180x108_0.1/1x");
+        rDCodeML.saveJsonToFile("out.json");
     }
     public RDCodeML(RDCodeMLConfig config) {
         super(config);
@@ -25,6 +28,11 @@ public class RDCodeML extends BlackWhiteCodeML{
     }
     protected void toImages(String inputFilePath,String outputDirectoryPath){
         byte[] inputFileArray=getInputFileBytes(inputFilePath);
+
+        JsonObject fileJsonRoot=new JsonObject();
+        fileJsonRoot.addProperty("path",inputFilePath);
+        fileJsonRoot.addProperty("sha1",FileVerification.bytesToSHA1(inputFileArray));
+        jsonRoot.add("file",fileJsonRoot);
 
         int numRegions=config.numRegionHorizon*config.numRegionVertical;
         int numParityRegions=3;
@@ -60,7 +68,7 @@ public class RDCodeML extends BlackWhiteCodeML{
                 }
             }
         }
-        int numRSBytes=6;
+        int numRSBytes=4;
         int numColors=4;
         int numRegionBytes=(config.regionWidth*config.regionHeight)/(8/(int)Math.sqrt(numColors));
         int numRegionDataBytes=numRegionBytes-numRSBytes;
@@ -170,6 +178,7 @@ public class RDCodeML extends BlackWhiteCodeML{
         inputFileSizeInByte=inputFileArray.length;
 
         List<BitSet> rSBitSet=intArrayListToBitSetList(rSEncoded,8);
+        jsonRoot.add("barcodeValues",bitSetListToJson(rSBitSet));
         bitSetListToImages(rSBitSet,outputDirectoryPath,config);
     }
     class Window{

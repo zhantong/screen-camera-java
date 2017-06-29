@@ -46,16 +46,18 @@ public class BlackWhiteCode {
         int numRSData=calcNumRSData(numRS,numRSEc);
         byte[] inputFileArray=getInputFileBytes(inputFilePath);
 
-        jsonRoot.addProperty("filePath",inputFilePath);
-        jsonRoot.addProperty("SHA1",FileVerification.bytesToSHA1(inputFileArray));
+        JsonObject fileJsonRoot=new JsonObject();
+        fileJsonRoot.addProperty("path",inputFilePath);
+        fileJsonRoot.addProperty("sha1",FileVerification.bytesToSHA1(inputFileArray));
+        jsonRoot.add("file",fileJsonRoot);
 
         configureTopBar(config,inputFileArray.length);
         inputFileSizeInByte=inputFileArray.length;
 
         int numDataBytes = calcRaptorQSymbolSize(calcRaptorQPacketSize(numRSData,rSEcSize));
         FECParameters parameters = FECParameters.newParameters(inputFileArray.length, numDataBytes, NUMBER_OF_SOURCE_BLOCKS);
-        jsonRoot.add("FECParameters",Utils.fecParametersToJson(parameters));
-        System.out.println("FECParameters: "+parameters.toString());
+        jsonRoot.add("fecParameters",Utils.fecParametersToJson(parameters));
+        System.out.println("fecParameters: "+parameters.toString());
         List<byte[]> raptorQ=raptorQEncode(inputFileArray,parameters,raptorQRedundancy,isReplaceLastSourcePacketAsRepair);
         List<int[]> rS=Utils.rSEncode(raptorQ,numRSEc,rSEcSize);
         List<BitSet> rSBitSet=intArrayListToBitSetList(rS,rSEcSize);
