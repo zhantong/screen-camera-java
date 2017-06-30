@@ -302,4 +302,39 @@ public class Utils {
         root.addProperty("schemeSpecificOTI",serializableParameters.schemeSpecificOTI());
         return root;
     }
+    static void duplicate(String srcPath,String destPath,String pattern,int startIndex,int endIndex,int times){
+        checkDirectory(destPath);
+        int index=0;
+        for(int i=0;i<startIndex;i++){
+            try {
+                Files.copy(Paths.get(srcPath,String.format(pattern,i)),Paths.get(destPath,String.format(pattern,index)));
+                index++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for(int time=0;time<times;time++){
+            for(int i=startIndex;i<endIndex;i++){
+                try {
+                    Files.copy(Paths.get(srcPath,String.format(pattern,i)),Paths.get(destPath,String.format(pattern,index)));
+                    index++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    static void checkDirectory(String directory) {
+        File folder = new File(directory);
+        boolean b = false;
+        if (!folder.exists()) {
+            b = folder.mkdirs();
+        }
+        if (b) {
+            System.out.println("Directory created successfully");
+        } else {
+            System.out.println("Directory already exists");
+        }
+    }
 }
